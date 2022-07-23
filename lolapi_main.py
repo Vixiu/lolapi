@@ -8,6 +8,8 @@ from PyQt5.QtGui import QPixmap, QImage, QMovie
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import random
+
+import Fuwen
 import lolapi
 
 '''
@@ -97,9 +99,12 @@ def shero(sate):
     ui.profile.setPixmap(scr(userlist))
 
 def test(i):
+    Main.show()
     for j in herolist:
         if herolist[j]['id']==i:
              ui.profile.setPixmap(QPixmap(QImage.fromData(lcu.getdata(herolist[j]['squarePortraitPath']).content)))
+
+
 herolist = {}
 userlist = {}
 
@@ -119,7 +124,16 @@ app = QApplication(sys.argv)
 MainWindow = QMainWindow()
 ui = lolapi.Ui_Frame()
 ui.setupUi(MainWindow)
+
+
 MainWindow.show()
+
+Main = QMainWindow()
+uis = Fuwen.Ui_FuWen()
+uis.setupUi(Main)
+
+
+
 # Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
 ui.herolist.highlighted[str].connect(
     lambda s: ui.profile.setPixmap(QPixmap(QImage.fromData(lcu.getdata(herolist[s]['squarePortraitPath']).content))))
