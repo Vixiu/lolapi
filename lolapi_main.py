@@ -96,7 +96,10 @@ def shero(sate):
         ui.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '秒抢>>>' + sate + "<font>")
     ui.profile.setPixmap(scr(userlist))
 
-
+def test(i):
+    for j in herolist:
+        if herolist[j]['id']==i:
+             ui.profile.setPixmap(QPixmap(QImage.fromData(lcu.getdata(herolist[j]['squarePortraitPath']).content)))
 herolist = {}
 userlist = {}
 
@@ -132,6 +135,9 @@ ui.herolist.currentIndexChanged.connect(lambda s: print(s))
 ###############################################################
 qthread.gtext.connect(apptext)
 qthread.stext.connect(setext)
+
+qthread.test.connect(test)
+
 qthread.gamestart.connect(load)  # 载入
 qthread.enable.connect(lambda b: MainWindow.setEnabled(b))
 app.exec_()  # 开始

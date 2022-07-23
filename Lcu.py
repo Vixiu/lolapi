@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import re
+import sys
 import time
 
 import requests
@@ -77,13 +78,14 @@ class LcuThread(QThread):
     gtext = QtCore.pyqtSignal(str)  # 定义
     gamestart = QtCore.pyqtSignal()
     enable = QtCore.pyqtSignal(bool)
+    test = QtCore.pyqtSignal(int)
 
-    def __init__(self, LcuRequest):
+    def __init__(self, lcu_request):
         super().__init__()
         self.acceptflag = False
         self.choiceflag = False
         self.stop = True
-        self.lcures = LcuRequest
+        self.lcures = lcu_request
         self.herochoose = -1
 
     def run(self):
@@ -103,22 +105,41 @@ class LcuThread(QThread):
                         self.gtext.emit("客户端已经载入!")
                         self.enable.emit(True)
                         self.gamestart.emit()  # 初始化
+                        # ----------------------
                         while self.stop and CheckProc('LeagueClient.exe'):
                             if CheckProc('League of Legends.exe'):
                                 self.stext.emit("游戏已经开始", "#FF1493")
                                 time.sleep(3)
                             else:
                                 try:
-                                    if self.herochoose > -1:
+                                    if self.lcures.getdata("/lol-champ-select-legacy/v1/implementation-active").json():
+
                                         self.lcures.getdata('/lol-champ-select/v1/session/actions/1', 'PATCH', {}, {
                                             "championId": self.herochoose,
-                                            "completed": True
+                                            "completed": False
                                         })
-
+                                        summoner_id = self.lcures.getdata('/lol-summoner/v1/current-summoner').json()[
+                                            'summonerId']
+                                        cellid = 0
+                                        res = self.lcures.getdata("/lol-champ-select/v1/session").json()
+                                        for i in list(res['myTeam']):
+                                            if i['summonerId'] == summoner_id:
+                                                cellid = i['cellId']
+                                                break
+                                        res=self.lcures.getdata("/lol-champ-select/v1/session").json()['actions'][0]
+                                        for i in range(len(res)):
+                                            if res[i]['actorCellId'] == cellid:
+                                                cellid = i
+                                                break
+                                        while self.lcures.getdata(
+                                                "/lol-champ-select-legacy/v1/implementation-active").json():
+                                            my_actions = self.lcures.getdata("/lol-champ-select/v1/session").json()['actions'][0][cellid]
+                                            self.test.emit(my_actions['championId'])
                                     elif self.acceptflag:
                                         self.lcures.getdata('/lol-matchmaking/v1/ready-check/accept', 'post')
                                     #   self.gtext.emit("接受中...")
-                                except Exception:
+                                except Exception as e :
+                                    print("错误:",e)
                                     self.gtext.emit("客户端退出!")
                                     break
                         break
