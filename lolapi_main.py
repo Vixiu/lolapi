@@ -1,6 +1,6 @@
 import os
 import time
-from PyQt5.QtWidgets import QWidget, QApplication, QHBoxLayout, QGroupBox, QLabel, QCompleter
+from PyQt5.QtWidgets import QWidget, QApplication, QHBoxLayout, QGroupBox, QLabel, QCompleter, QDialog
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QPainter, QBrush, QPainterPath
 from pypinyin import lazy_pinyin
@@ -98,11 +98,18 @@ def shero(sate):
         ui.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '秒抢>>>' + sate + "<font>")
     ui.profile.setPixmap(scr(userlist))
 
+
 def test(i):
-    Main.show()
     for j in herolist:
-        if herolist[j]['id']==i:
-             ui.profile.setPixmap(QPixmap(QImage.fromData(lcu.getdata(herolist[j]['squarePortraitPath']).content)))
+        if herolist[j]['id'] == i:
+            uis.hero_avatar.setPixmap(QPixmap(QImage.fromData(lcu.getdata(herolist[j]['squarePortraitPath']).content)))
+            uis.hero_name.setText(j)
+
+def fuwen(ble):
+    if ble :
+        fuwenmain.show()
+    else:
+        fuwenmain.close()
 
 
 herolist = {}
@@ -125,14 +132,12 @@ MainWindow = QMainWindow()
 ui = lolapi.Ui_Frame()
 ui.setupUi(MainWindow)
 
-
 MainWindow.show()
 
-Main = QMainWindow()
+fuwenmain = QDialog()
+#fuwenmain = QWidget
 uis = Fuwen.Ui_FuWen()
-uis.setupUi(Main)
-
-
+uis.setupUi(fuwenmain)
 
 # Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
 ui.herolist.highlighted[str].connect(
@@ -151,8 +156,9 @@ qthread.gtext.connect(apptext)
 qthread.stext.connect(setext)
 
 qthread.test.connect(test)
-
+qthread.fuwen.connect(fuwen)
 qthread.gamestart.connect(load)  # 载入
 qthread.enable.connect(lambda b: MainWindow.setEnabled(b))
+###############################################################
 app.exec_()  # 开始
 qthread.stop = False  # 线程退出

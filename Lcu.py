@@ -79,7 +79,7 @@ class LcuThread(QThread):
     gamestart = QtCore.pyqtSignal()
     enable = QtCore.pyqtSignal(bool)
     test = QtCore.pyqtSignal(int)
-
+    fuwen=QtCore.pyqtSignal(bool)
     def __init__(self, lcu_request):
         super().__init__()
         self.acceptflag = False
@@ -113,11 +113,11 @@ class LcuThread(QThread):
                             else:
                                 try:
                                     if self.lcures.getdata("/lol-champ-select-legacy/v1/implementation-active").json():
-
                                         self.lcures.getdata('/lol-champ-select/v1/session/actions/1', 'PATCH', {}, {
                                             "championId": self.herochoose,
                                             "completed": False
                                         })
+                                        self.fuwen.emit(True)
                                         summoner_id = self.lcures.getdata('/lol-summoner/v1/current-summoner').json()[
                                             'summonerId']
                                         cellid = 0
@@ -135,6 +135,8 @@ class LcuThread(QThread):
                                                 "/lol-champ-select-legacy/v1/implementation-active").json():
                                             my_actions = self.lcures.getdata("/lol-champ-select/v1/session").json()['actions'][0][cellid]
                                             self.test.emit(my_actions['championId'])
+                                        self.fuwen.emit(False)
+
                                     elif self.acceptflag:
                                         self.lcures.getdata('/lol-matchmaking/v1/ready-check/accept', 'post')
                                     #   self.gtext.emit("接受中...")
@@ -142,6 +144,7 @@ class LcuThread(QThread):
                                     print("错误:",e)
                                     self.gtext.emit("客户端退出!")
                                     break
+
                         break
                     except Exception:
                         # 二级加载

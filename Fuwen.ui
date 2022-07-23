@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>452</width>
-    <height>598</height>
+    <width>468</width>
+    <height>628</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -60,8 +60,8 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>370</y>
-     <width>391</width>
+     <y>400</y>
+     <width>401</width>
      <height>121</height>
     </rect>
    </property>
@@ -82,24 +82,11 @@
     <string>上/野/中/下/辅</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_3">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>580</y>
-     <width>401</width>
-     <height>121</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>对位情况</string>
-   </property>
-  </widget>
   <widget class="QScrollArea" name="scrollArea_2">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>340</y>
+     <x>40</x>
+     <y>360</y>
      <width>371</width>
      <height>31</height>
     </rect>
@@ -121,9 +108,9 @@
   <widget class="QScrollArea" name="scrollArea_3">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>160</y>
-     <width>381</width>
+     <x>10</x>
+     <y>180</y>
+     <width>441</width>
      <height>171</height>
     </rect>
    </property>
@@ -135,26 +122,98 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>379</width>
+      <width>439</width>
       <height>169</height>
      </rect>
     </property>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>421</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>419</width>
+        <height>59</height>
+       </rect>
+      </property>
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>330</x>
+         <y>10</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>PushButton</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QScrollArea" name="scrollArea_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>421</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents_4">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>419</width>
+        <height>59</height>
+       </rect>
+      </property>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="geometry">
+        <rect>
+         <x>340</x>
+         <y>20</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>PushButton</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>500</y>
-     <width>401</width>
-     <height>61</height>
+     <y>540</y>
+     <width>441</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="title">
     <string>小技巧</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -187,10 +246,10 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>150</x>
      <y>110</y>
      <width>231</width>
      <height>31</height>
@@ -226,6 +285,19 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>150</y>
+     <width>451</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
   </widget>
  </widget>
  <resources/>
