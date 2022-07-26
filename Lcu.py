@@ -119,7 +119,6 @@ class LcuThread(QThread):
                                     if self.lcures.getdata("/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':
                                         # 选人
 
-
                                         # self.fuwen.emit(True)
 
                                         summoner_id = self.lcures.getdata('/lol-summoner/v1/current-summoner').json()[
@@ -136,25 +135,24 @@ class LcuThread(QThread):
                                             else:
                                                 teamsummid.append(i['summonerId'])
 
-                                        print('er-',cellid)
+                                        print('er-', cellid)
 
                                         for i in teamsummid:
-                                            na=self.lcures.getdata("/lol-summoner/v1/summoners/" + str(i)).json()
+                                            na = self.lcures.getdata("/lol-summoner/v1/summoners/" + str(i)).json()
                                             names.append(na['displayName'])
 
                                         roomyid = self.lcures.getdata("/lol-chat/v1/conversations").json()[0]['id']
                                         environment = \
-                                        self.lcures.getdata("/riotclient/v1/crash-reporting/environment").json()[
-                                            'environment']
-
+                                            self.lcures.getdata("/riotclient/v1/crash-reporting/environment").json()[
+                                                'environment']
 
                                         res = self.lcures.getdata("/lol-champ-select/v1/session").json()['actions'][0]
                                         for i in range(len(res)):
                                             if res[i]['actorCellId'] == cellid:
                                                 cellid = i
                                                 break
-                                        print('yi-',cellid)
-                                        self.lcures.getdata('/lol-champ-select/v1/session/actions/' + str(cellid+1),
+                                        print('yi-', cellid)
+                                        self.lcures.getdata('/lol-champ-select/v1/session/actions/' + str(cellid + 1),
                                                             'PATCH', {}, {
                                                                 "championId": self.herochoose,
                                                                 "completed": False
@@ -164,6 +162,7 @@ class LcuThread(QThread):
                                             s1 = ''
                                             if list(cod17[0].values())[0]:
                                                 s1 = str(cod17[0])
+
                                             else:
                                                 for i in cod17:
                                                     if list(i.values())[0]:
@@ -171,9 +170,9 @@ class LcuThread(QThread):
                                                             cod17[1:]).replace(
                                                             "{}", '未找到')
                                                         break
-
                                             if s1 == '':
-                                                s1=str(i)+'未找到'
+                                                s1 = str(i) + '未找到'
+                                            print(s1)
                                             for i in ["[", "]", '\'', '{', '}']:
                                                 s1 = s1.replace(i, '')
                                             self.lcures.getdata(
@@ -185,7 +184,8 @@ class LcuThread(QThread):
                                             self.lcures.getdata(
                                                 "/lol-chat/v1/conversations/" + roomyid + "/messages",
                                                 method='post', headers=None, data={
-                                                    "body": "---------------------------------------------------------------",  # String
+                                                    "body": "---------------------------------------------------------------",
+                                                    # String
                                                     "type": "ban"  # String,
                                                 })
 
