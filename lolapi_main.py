@@ -107,25 +107,27 @@ def test(i):
 
 def fuwen(ble):
     if ble :
+        print('显示')
         fuwenmain.show()
     else:
+
+        print('不显示')
         fuwenmain.close()
 
 
 herolist = {}
 userlist = {}
 
-lolpath = 'F:\\英雄联盟-\\LeagueClient'
+lolpath = 'F:\\1\\英雄联盟-\\LeagueClient'
 
 lcu = LcuRequest(lolpath)
 qthread = LcuThread(lcu)
 qthread.start()
 # userlist = lcu.getdata('/lol-summoner/v1/current-summoner').json()
-# query='/lol-lobby/v2/lobby/matchmaking/search-state' #状态
 # query='/lol-lobby/v2/lobby/matchmaking/search'   #寻找对局
 # query='/lol-matchmaking/v1/ready-check/accept' #接受
 # /lol-summoner/v1/current-summoner 状态
-
+#/lol-summoner/v1/summoners/4118336138 名字
 
 app = QApplication(sys.argv)
 MainWindow = QMainWindow()
@@ -134,11 +136,11 @@ ui.setupUi(MainWindow)
 
 MainWindow.show()
 
-fuwenmain = QDialog()
-#fuwenmain = QWidget
+##fuwenmain = QDialog()
+fuwenmain = QMainWindow()
 uis = Fuwen.Ui_FuWen()
 uis.setupUi(fuwenmain)
-
+#fuwenmain.show()
 # Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
 ui.herolist.highlighted[str].connect(
     lambda s: ui.profile.setPixmap(QPixmap(QImage.fromData(lcu.getdata(herolist[s]['squarePortraitPath']).content))))

@@ -9,6 +9,8 @@ import requests
 import urllib3
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5 import QtCore
+import traceback
+from lol_find import FindLolQP
 
 
 def CheckProc(name):
@@ -79,7 +81,8 @@ class LcuThread(QThread):
     gamestart = QtCore.pyqtSignal()
     enable = QtCore.pyqtSignal(bool)
     test = QtCore.pyqtSignal(int)
-    fuwen=QtCore.pyqtSignal(bool)
+    fuwen = QtCore.pyqtSignal(bool)
+
     def __init__(self, lcu_request):
         super().__init__()
         self.acceptflag = False
@@ -87,6 +90,7 @@ class LcuThread(QThread):
         self.stop = True
         self.lcures = lcu_request
         self.herochoose = -1
+        self.l = FindLolQP()
 
     def run(self):
         self.enable.emit(False)
@@ -109,39 +113,98 @@ class LcuThread(QThread):
                         while self.stop and CheckProc('LeagueClient.exe'):
                             if CheckProc('League of Legends.exe'):
                                 self.stext.emit("游戏已经开始", "#FF1493")
-                                time.sleep(3)
+                            # time.sleep()
                             else:
                                 try:
-                                    if self.lcures.getdata("/lol-champ-select-legacy/v1/implementation-active").json():
-                                        self.lcures.getdata('/lol-champ-select/v1/session/actions/1', 'PATCH', {}, {
-                                            "championId": self.herochoose,
-                                            "completed": False
-                                        })
-                                        self.fuwen.emit(True)
+                                    if self.lcures.getdata("/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':
+                                        # 选人
+
+
+                                        # self.fuwen.emit(True)
+
                                         summoner_id = self.lcures.getdata('/lol-summoner/v1/current-summoner').json()[
                                             'summonerId']
                                         cellid = 0
+                                        teamsummid = []
+                                        names = []
+
                                         res = self.lcures.getdata("/lol-champ-select/v1/session").json()
+
                                         for i in list(res['myTeam']):
                                             if i['summonerId'] == summoner_id:
                                                 cellid = i['cellId']
-                                                break
-                                        res=self.lcures.getdata("/lol-champ-select/v1/session").json()['actions'][0]
+                                            else:
+                                                teamsummid.append(i['summonerId'])
+
+                                        print('er-',cellid)
+
+                                        for i in teamsummid:
+                                            na=self.lcures.getdata("/lol-summoner/v1/summoners/" + str(i)).json()
+                                            names.append(na['displayName'])
+
+                                        roomyid = self.lcures.getdata("/lol-chat/v1/conversations").json()[0]['id']
+                                        environment = \
+                                        self.lcures.getdata("/riotclient/v1/crash-reporting/environment").json()[
+                                            'environment']
+
+
+                                        res = self.lcures.getdata("/lol-champ-select/v1/session").json()['actions'][0]
                                         for i in range(len(res)):
                                             if res[i]['actorCellId'] == cellid:
                                                 cellid = i
                                                 break
+                                        print('yi-',cellid)
+                                        self.lcures.getdata('/lol-champ-select/v1/session/actions/' + str(cellid+1),
+                                                            'PATCH', {}, {
+                                                                "championId": self.herochoose,
+                                                                "completed": False
+                                                            })
+                                        for i in names:
+                                            cod17 = self.l.getName_newApi(i, environment)
+                                            s1 = ''
+                                            if list(cod17[0].values())[0]:
+                                                s1 = str(cod17[0])
+                                            else:
+                                                for i in cod17:
+                                                    if list(i.values())[0]:
+                                                        s1 = list(cod17[0].keys())[0] + ' 历史id: ' + str(
+                                                            cod17[1:]).replace(
+                                                            "{}", '未找到')
+                                                        break
+
+                                            if s1 == '':
+                                                s1=str(i)+'未找到'
+                                            for i in ["[", "]", '\'', '{', '}']:
+                                                s1 = s1.replace(i, '')
+                                            self.lcures.getdata(
+                                                "/lol-chat/v1/conversations/" + roomyid + "/messages",
+                                                method='post', headers=None, data={
+                                                    "body": s1,  # String
+                                                    "type": "celebration"  # String,
+                                                })
+                                            self.lcures.getdata(
+                                                "/lol-chat/v1/conversations/" + roomyid + "/messages",
+                                                method='post', headers=None, data={
+                                                    "body": "---------------------------------------------------------------",  # String
+                                                    "type": "ban"  # String,
+                                                })
+
+                                        # 预获取信息
                                         while self.lcures.getdata(
-                                                "/lol-champ-select-legacy/v1/implementation-active").json():
-                                            my_actions = self.lcures.getdata("/lol-champ-select/v1/session").json()['actions'][0][cellid]
+                                                "/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':
+                                            my_actions = \
+                                                self.lcures.getdata("/lol-champ-select/v1/session").json()['actions'][
+                                                    0][
+                                                    cellid]
                                             self.test.emit(my_actions['championId'])
-                                        self.fuwen.emit(False)
+                                        # self.fuwen.emit(False)
 
                                     elif self.acceptflag:
                                         self.lcures.getdata('/lol-matchmaking/v1/ready-check/accept', 'post')
                                     #   self.gtext.emit("接受中...")
-                                except Exception as e :
-                                    print("错误:",e)
+                                except Exception as e:
+                                    traceback.print_exc()
+                                    print("错误:", e)
                                     self.gtext.emit("客户端退出!")
                                     break
 
