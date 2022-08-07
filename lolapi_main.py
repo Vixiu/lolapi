@@ -118,7 +118,7 @@ def fuwen(ble):
 herolist = {}
 userlist = {}
 
-lolpath = 'F:\\1\\英雄联盟-\\LeagueClient'
+lolpath = 'F:\\英雄联盟-\\LeagueClient'
 
 lcu = LcuRequest(lolpath)
 qthread = LcuThread(lcu)

@@ -21,6 +21,12 @@ class FindLolQP:
                                        db='16e',
                                        charset='utf8')  # 服务器名,账户,密码，数据库名称
         self.cur = self.connect.cursor()
+        self.connect_ = pymysql.connect(host='localhost',  # 本地数据库
+                                        user='root',
+                                        password='123456',
+                                        db='se_data',
+                                        charset='utf8')  # 服务器名,账户,密码，数据库名称
+        self.cur_ = self.connect_.cursor()
 
     def getName_newApi(self, name, region, cookie=None):
         if cookie is None:
@@ -31,7 +37,7 @@ class FindLolQP:
         }
         hn_infm = {
             "HN1": 1,
-                "HN11": 15
+            "HN11": 15
         }
         r = ''
         if region in hn_infm:
@@ -44,11 +50,12 @@ class FindLolQP:
             if v == region:
                 r = k
 
-       # print(r,region)
+        # print(r,region)
         headers = {
             'Content-Type': 'application/json;charset=UTF-8',
             'Referer': 'https://www.wegame.com.cn/helper/lol/record/profile.html',
-            'Cookie': cookie}
+            'Cookie': cookie
+        }
         lastname = {name}
         uuid = ""
 

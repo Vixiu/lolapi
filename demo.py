@@ -11,5 +11,5 @@ print(a.getName_newApi("舍得有舍才有得", '暗影岛'))
 lolpath = 'F:\\英雄联盟-\\LeagueClient'
 lolpath = 'F:\\1\\英雄联盟-\\LeagueClient'
 lcu = LcuRequest(lolpath)
-print(CheckProc('League of Legends.exe'))
-#print(lcu.getdata("/lol-champ-select/v1/session/actions/1").json())
+#print(CheckProc('League of Legends.exe'))
+print(lcu.getdata("/lol-champ-select/v1/session").json())
