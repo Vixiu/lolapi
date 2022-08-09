@@ -90,7 +90,7 @@ class LcuThread(QThread):
         self.stop = True
         self.lcures = lcu_request
         self.herochoose = -1
-        self.l = FindLolQP()
+        self.find = FindLolQP()
 
     def run(self):
         self.enable.emit(False)
@@ -157,30 +157,29 @@ class LcuThread(QThread):
                                                                 "championId": self.herochoose,
                                                                 "completed": False
                                                             })
-                                        for i in names:
-                                            cod17 = self.l.getName_newApi(i, environment)
-                                            s1 = ''
-                                            if list(cod17[0].values())[0]:
-                                                s1 = str(cod17[0])
-
+                                        info = self.find.get_info(names, environment)
+                                        for i in info:
+                                            if info[i]:
+                                                self.lcures.getdata(
+                                                    "/lol-chat/v1/conversations/" + roomyid + "/messages",
+                                                    method='post', headers=None, data={
+                                                        "body": i+':',  # String
+                                                        "type": "celebration"  # String,
+                                                    })
+                                                for j in info[i]:
+                                                    self.lcures.getdata(
+                                                        "/lol-chat/v1/conversations/" + roomyid + "/messages",
+                                                        method='post', headers=None, data={
+                                                            "body": "  -"+j+':'+','.join(info[i][j]),  # String
+                                                            "type": "celebration"  # String,
+                                                        })
                                             else:
-                                                for i in cod17:
-                                                    if list(i.values())[0]:
-                                                        s1 = list(cod17[0].keys())[0] + ' 历史id: ' + str(
-                                                            cod17[1:]).replace(
-                                                            "{}", '未找到')
-                                                        break
-                                            if s1 == '':
-                                                s1 = str(i) + '未找到'
-                                            print(s1)
-                                            for i in ["[", "]", '\'', '{', '}']:
-                                                s1 = s1.replace(i, '')
-                                            self.lcures.getdata(
-                                                "/lol-chat/v1/conversations/" + roomyid + "/messages",
-                                                method='post', headers=None, data={
-                                                    "body": s1,  # String
-                                                    "type": "celebration"  # String,
-                                                })
+                                                self.lcures.getdata(
+                                                    "/lol-chat/v1/conversations/" + roomyid + "/messages",
+                                                    method='post', headers=None, data={
+                                                        "body": i + ':未找到',  # String
+                                                        "type": "celebration"  # String,
+                                                    })
                                             self.lcures.getdata(
                                                 "/lol-chat/v1/conversations/" + roomyid + "/messages",
                                                 method='post', headers=None, data={
@@ -188,7 +187,6 @@ class LcuThread(QThread):
                                                     # String
                                                     "type": "ban"  # String,
                                                 })
-
                                         # 预获取信息
                                         while self.lcures.getdata(
                                                 "/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':

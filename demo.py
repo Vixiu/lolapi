@@ -7,29 +7,17 @@ import Fuwen
 from Lcu import LcuRequest, CheckProc
 from lol_find import FindLolQP
 a = FindLolQP()
+s1=a.get_info(["李青信迎者LeeSin","航哥ZZZZ","丿蔑视灬一切"],'HN11')
+print(s1)
+for i in s1:
+    if s1[i]:
+        print(i)
+        for j in s1[i]:
+            print()
+    else:
+        print(i+":未找到")
 
-a.get_info("李青信迎者LeeSin",'暗影岛')
+#for i in ["[", "]", '\'', '{', '}']:
+ #   s1 = s1.replace(i,'')
 
 
-'''
-            if data:
-                for j in data:
-                    if daqu.startswith(j[2]):
-                        self.cur.execute("SELECT * FROM qbang WHERE qq=" + "\'" + j[0] + "\'")
-                        data = self.cur.fetchall()
-                        if data:
-                            ls = []
-                            for q in data:
-                                ls.append(q[1])
-                            qqs.append({i: {"QQ": j[0],
-                                            "Phone": ls
-                                            }
-                                        })
-                        else:
-                            qqs.append({i: {"QQ": j[0]}})
-
-                if not qqs:
-                    qqs.append({i: {}})
-            else:
-                qqs.append({i: {}})
-'''

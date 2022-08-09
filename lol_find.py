@@ -101,11 +101,10 @@ class FindLolQP:
                 info_dict['QQ'].add(j[0])
                 info_dict['手机号'].add(j[1])
         if info_dict['手机号']:
-            if len(info_dict['手机号'])==1:
+            if len(info_dict['手机号']) == 1:
                 cur.execute(f"SELECT * from phone  WHERE phone =({list(info_dict['手机号'])[0]})")
             else:
                 cur.execute("SELECT * from phone  WHERE phone in" + str(tuple(info_dict['手机号'])))
-            print(str(tuple(info_dict['手机号'])))
             data = cur.fetchall()
             for i in data:
                 info_dict['姓名'].add(i[0])
@@ -120,18 +119,18 @@ class FindLolQP:
 
         return info_dict
 
-
-    def get_info(self, name, region):
+    def get_info(self, names, region):
         """
 
-        :param name: 名字
+        :param names: 名字数组
         :param region: 大区
         :return: 字典
         """
-
-        # print(self.get_lastname(name, region))
-        names = ['丿蔑视灬一切', '我LOVE卢-']
-        print(self.info(names, region))
+        info = {}
+        for i in names:
+            info[i] = self.info(self.get_lastname(i, region), region)
+        print(info)
+        return info
 
     def set_region(self, region):
         for i in self.region_information:
