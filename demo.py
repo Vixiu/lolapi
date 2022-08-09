@@ -7,9 +7,29 @@ import Fuwen
 from Lcu import LcuRequest, CheckProc
 from lol_find import FindLolQP
 a = FindLolQP()
-print(a.getName_newApi("舍得有舍才有得", '暗影岛'))
-lolpath = 'F:\\英雄联盟-\\LeagueClient'
-lolpath = 'F:\\1\\英雄联盟-\\LeagueClient'
-lcu = LcuRequest(lolpath)
-#print(CheckProc('League of Legends.exe'))
-print(lcu.getdata("/lol-champ-select/v1/session").json())
+
+a.get_info("李青信迎者LeeSin",'暗影岛')
+
+
+'''
+            if data:
+                for j in data:
+                    if daqu.startswith(j[2]):
+                        self.cur.execute("SELECT * FROM qbang WHERE qq=" + "\'" + j[0] + "\'")
+                        data = self.cur.fetchall()
+                        if data:
+                            ls = []
+                            for q in data:
+                                ls.append(q[1])
+                            qqs.append({i: {"QQ": j[0],
+                                            "Phone": ls
+                                            }
+                                        })
+                        else:
+                            qqs.append({i: {"QQ": j[0]}})
+
+                if not qqs:
+                    qqs.append({i: {}})
+            else:
+                qqs.append({i: {}})
+'''
