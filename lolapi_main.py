@@ -74,7 +74,7 @@ def load():
     global herolist, userlist
     herolist = {}
     userlist = lcu.getdata('/lol-summoner/v1/current-summoner').json()
-    print(userlist)
+   # print(userlist)
     ui.name.setText(userlist['internalName'])
     ui.profile.setPixmap(scr(userlist))  # 圆形头像
     for i in lcu.getdata('/lol-champions/v1/owned-champions-minimal').json():
@@ -82,7 +82,7 @@ def load():
             "squarePortraitPath": i['squarePortraitPath'],
             "id": i['id']
         }
-    print(herolist)
+   # print(herolist)
     ui.herolist.clear()
     ui.herolist.addItems(sorted(herolist.keys(), key=lambda x: lazy_pinyin(x)))  # 列表内添加英雄
     completer = QCompleter(herolist.keys())

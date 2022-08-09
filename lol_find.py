@@ -1,6 +1,4 @@
 import json
-import time
-
 import pymysql
 import urllib3
 from requests import request
@@ -18,15 +16,8 @@ class FindLolQP:
         self.connect = pymysql.connect(host='localhost',  # 本地数据库
                                        user='root',
                                        password='123456',
-                                       db='16e',
+                                       db='se',
                                        charset='utf8')  # 服务器名,账户,密码，数据库名称
-        self.cur = self.connect.cursor()
-        self.connect_ = pymysql.connect(host='localhost',  # 本地数据库
-                                        user='root',
-                                        password='123456',
-                                        db='se_data',
-                                        charset='utf8')  # 服务器名,账户,密码，数据库名称
-        self.cur_ = self.connect_.cursor()
 
     def getName_newApi(self, name, region, cookie=None):
         if cookie is None:
@@ -121,9 +112,6 @@ class FindLolQP:
 
         return self.get_qq(ls, r)
 
-    def getName_oldApi(self, name, region, cookie):
-        pass
-
     def get_qq(self, names, daqu):
         qqs = []
         for i in names:
@@ -154,21 +142,17 @@ class FindLolQP:
 
 
 """
-[
-            [
-            name1:{
-                qq:nump,
-                phone:[n,n]
-                },
-                ]
+ls={
+    'name2':{
+        'phone':1234,
+        'dizhi':"111",
+        '1234':'1234'
+    },
+    'name1':{
+        'phone':[1234,],
+        'dizhi':"111",
+        '1234':'1234'
+    }
+}
 
-            name2:{
-                qq:num,
-                phone:[n,n
-                }
-
-
-        ]
-
-
-        """
+"""
