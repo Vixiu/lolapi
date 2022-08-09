@@ -2,7 +2,7 @@ import sys
 
 import pymysql
 
-sys.setrecursionlimit(10240)  # 设置最大递归次数
+#sys.setrecursionlimit(10240)  # 设置最大递归次数
 
 
 def savadata(data):
