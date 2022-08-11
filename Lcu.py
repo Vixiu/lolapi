@@ -170,7 +170,7 @@ class LcuThread(QThread):
                                                     self.lcures.getdata(
                                                         "/lol-chat/v1/conversations/" + roomyid + "/messages",
                                                         method='post', headers=None, data={
-                                                            "body": "  -"+j+':'+','.join(info[i][j]),  # String
+                                                            "body": "*"+j+':'+','.join(info[i][j]),  # String
                                                             "type": "celebration"  # String,
                                                         })
                                             else:

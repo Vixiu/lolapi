@@ -31,9 +31,9 @@ class FindLolQP:
     def get_lastname(self, name, region):
 
         """
-        :param name: 名字
-        :param region: 大区
-        :return:数组，第一个元素为初始名字
+        :param name: 名字-字符串
+        :param region: 大区-字符串
+        :return:历史名字 数组-第一个元素为初始名字
         """
         region = self.set_region(region)[0]
         lastname = {name}  # 集合去重
@@ -79,6 +79,7 @@ class FindLolQP:
         return lastname
 
     def info(self, game_name, region):
+
         region = self.set_region(region)[1]
         if len(region) != 3:
             region = region[0:2]
@@ -122,9 +123,26 @@ class FindLolQP:
     def get_info(self, names, region):
         """
 
-        :param names: 名字数组
-        :param region: 大区
-        :return: 字典
+        :param names:  名字-数组,
+        :param region:  大区-字符串
+        :return: 历史Id，QQ，手机号，姓名，身份证，住址，学历 -字典 ,键为字符串,值固定为数组（数组内值为字符串）形式，只返回找到的信息,返回的字典格式如下:
+    {
+    'name1':{
+        '历史id:':["123",444]
+        'QQ':[1234]
+        '手机号':[1234]
+        '地址':["111"]
+        '身份证':['1234']
+                  }
+    'name2':{
+        '历史id:':[123,444]
+        'QQ':[1234]
+        '手机号':[1234]
+        '地址':"[111"]
+        '身份证':['1234']
+                    }
+    'name3':{}
+    }
         """
         info = {}
         for i in names:
@@ -143,19 +161,3 @@ class FindLolQP:
             return region
 
 
-"""
-ls={
-
-    'name':{
-        '历史id:':123,444
-        'QQ':1234
-        '手机号':1234,
-        '地址':"111",
-        '身份证':'1234'
-    }
-    
-    
-    
-}
-
-"""
