@@ -12,6 +12,6 @@ lcures = LcuRequest(lolpath)
 
 
 
-print(team)
+
 
 # https://127.0.0.1:61621/lol-lobby/v2/comms/members

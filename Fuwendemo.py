@@ -6,7 +6,7 @@ import Fuwen
 
 app = QApplication(sys.argv)
 MainWindow = QMainWindow()
-ui = Fuwen.Ui_Dialog()
+ui = Fuwen.Ui_FuWen()
 ui.setupUi(MainWindow)
 MainWindow.show()
 app.exec_()  # 开始

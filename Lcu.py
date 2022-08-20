@@ -119,7 +119,7 @@ class LcuThread(QThread):
                                                                 "championId": self.herochoose,
                                                                 "completed": False
                                                             })
-                                        #秒抢
+                                        # 秒抢
                                         chat_id = self.lcures.getdata("/lol-chat/v1/conversations").json()[0]['id']
                                         environment = \
                                             self.lcures.getdata("/riotclient/v1/crash-reporting/environment").json()[
