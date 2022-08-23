@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
-    <height>628</height>
+    <width>422</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,16 +23,22 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
-     <width>121</width>
-     <height>121</height>
+     <y>20</y>
+     <width>100</width>
+     <height>100</height>
     </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>100</width>
+     <height>100</height>
+    </size>
    </property>
    <property name="text">
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap>lol-wangz/challenge-card-token-mask.png</pixmap>
+    <pixmap>C:/Users/lnori/Desktop/6361.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -41,7 +47,7 @@
   <widget class="QLabel" name="hero_name">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>130</x>
      <y>10</y>
      <width>121</width>
      <height>41</height>
@@ -59,8 +65,8 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>400</y>
+     <x>10</x>
+     <y>320</y>
      <width>401</width>
      <height>121</height>
     </rect>
@@ -72,7 +78,7 @@
   <widget class="QPushButton" name="switch_location">
    <property name="geometry">
     <rect>
-     <x>330</x>
+     <x>300</x>
      <y>10</y>
      <width>111</width>
      <height>31</height>
@@ -82,130 +88,53 @@
     <string>上/野/中/下/辅</string>
    </property>
   </widget>
-  <widget class="QScrollArea" name="scrollArea_2">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>360</y>
-     <width>371</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="widgetResizable">
-    <bool>true</bool>
-   </property>
-   <widget class="QWidget" name="scrollAreaWidgetContents_2">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>369</width>
-      <height>29</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
   <widget class="QScrollArea" name="scrollArea_3">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>180</y>
-     <width>441</width>
-     <height>171</height>
+     <x>20</x>
+     <y>150</y>
+     <width>380</width>
+     <height>161</height>
     </rect>
    </property>
-   <property name="widgetResizable">
-    <bool>true</bool>
+   <property name="minimumSize">
+    <size>
+     <width>380</width>
+     <height>120</height>
+    </size>
    </property>
-   <widget class="QWidget" name="scrollAreaWidgetContents_3">
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOff</enum>
+   </property>
+   <property name="horizontalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOff</enum>
+   </property>
+   <property name="widgetResizable">
+    <bool>false</bool>
+   </property>
+   <widget class="QWidget" name="fuwenlist">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>439</width>
-      <height>169</height>
+      <width>440</width>
+      <height>8000</height>
      </rect>
     </property>
-    <widget class="QScrollArea" name="scrollArea">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>421</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>419</width>
-        <height>59</height>
-       </rect>
-      </property>
-      <widget class="QPushButton" name="pushButton">
-       <property name="geometry">
-        <rect>
-         <x>340</x>
-         <y>10</y>
-         <width>75</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>PushButton</string>
-       </property>
-      </widget>
-     </widget>
-    </widget>
-    <widget class="QScrollArea" name="scrollArea_4">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>80</y>
-       <width>421</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents_4">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>419</width>
-        <height>59</height>
-       </rect>
-      </property>
-      <widget class="QPushButton" name="pushButton_2">
-       <property name="geometry">
-        <rect>
-         <x>340</x>
-         <y>20</y>
-         <width>75</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>PushButton</string>
-       </property>
-      </widget>
-     </widget>
-    </widget>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>540</y>
-     <width>441</width>
+     <x>0</x>
+     <y>500</y>
+     <width>421</width>
      <height>51</height>
     </rect>
    </property>
@@ -216,7 +145,7 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>130</x>
      <y>60</y>
      <width>191</width>
      <height>31</height>
@@ -249,8 +178,8 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>110</y>
+     <x>130</x>
+     <y>90</y>
      <width>231</width>
      <height>31</height>
     </rect>
@@ -290,14 +219,37 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>150</y>
-     <width>451</width>
+     <y>130</y>
+     <width>421</width>
      <height>16</height>
     </rect>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
+  </widget>
+  <widget class="QScrollArea" name="scrollArea_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>450</y>
+     <width>401</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="widgetResizable">
+    <bool>true</bool>
+   </property>
+   <widget class="QWidget" name="scrollAreaWidgetContents_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>399</width>
+      <height>39</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

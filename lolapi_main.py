@@ -7,8 +7,9 @@ from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QCompleter
 from pypinyin import lazy_pinyin
-import Fuwen
+
 import lolapi
+from Fuwendemo import FuWen
 
 from Lcu import LcuRequest, LcuThread
 
@@ -77,11 +78,13 @@ def load():
     ui.name.setText(userlist['internalName'])
     ui.profile.setPixmap(scr(userlist))  # 圆形头像
     for i in lcu.getdata('/lol-champions/v1/owned-champions-minimal').json():
-        herolist[i['name'] + ' - ' + i['title']] = {
+        herolist[i['name']] = {
             "squarePortraitPath": i['squarePortraitPath'],
-            "id": i['id']
+            "id": i['id'],
+            'title': i['title']
         }
-    # print(herolist)
+  #  print(herolist)
+    print(userlist)
     ui.herolist.clear()
     ui.herolist.addItems(sorted(herolist.keys(), key=lambda x: lazy_pinyin(x)))  # 列表内添加英雄
     completer = QCompleter(herolist.keys())
@@ -98,14 +101,13 @@ def shero(sate):
     ui.profile.setPixmap(scr(userlist))
 
 
-def test(i):
-    for j in herolist:
-        if herolist[j]['id'] == i:
-            uis.hero_avatar.setPixmap(QPixmap(QImage.fromData(lcu.getdata(herolist[j]['squarePortraitPath']).content)))
-            uis.hero_name.setText(j)
+def test1():
+    print(66)
+    a.show()
 
 
-
+def test2():
+    a.add_S()
 
 
 herolist = {}
@@ -130,12 +132,9 @@ ui.setupUi(MainWindow)
 
 MainWindow.show()
 
-##fuwenmain = QDialog()
-fuwenmain = QMainWindow()
-uis = Fuwen.Ui_FuWen()
-uis.setupUi(fuwenmain)
-# fuwenmain.show()
 # Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
+a = FuWen(lcu)
+
 ###############################################################
 ui.herolist.highlighted[str].connect(
     lambda s: ui.profile.setPixmap(QPixmap(QImage.fromData(lcu.getdata(herolist[s]['squarePortraitPath']).content))))
@@ -145,15 +144,19 @@ ui.herolist.activated[str].connect(lambda s: shero(s))
 ui.checkBox.stateChanged.connect(lambda s: choosehero(s))
 
 # ui.herolist.editTextChanged.connect(lambda s:print(s))
-
 ui.herolist.currentIndexChanged.connect(lambda s: print(s))
+
+ui.help.clicked.connect(test1)
+ui.pushButton_7.clicked.connect(test2)
 
 ###############################################################
 qthread.add_text.connect(add_text)
 qthread.set_text.connect(set_text)
-qthread.test.connect(test)
+qthread.test.connect(test1)
 qthread.gameLoad.connect(load)  # 载入
 qthread.window_enable.connect(lambda b: MainWindow.setEnabled(b))
 ###############################################################
+
 app.exec_()  # 开始
+
 qthread.stop = False  # 线程退出

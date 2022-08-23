@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
+    <width>717</width>
     <height>447</height>
    </rect>
   </property>
@@ -121,7 +121,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>460</x>
      <y>20</y>
-     <width>141</width>
+     <width>160</width>
      <height>83</height>
     </rect>
    </property>
@@ -136,7 +136,7 @@ p, li { white-space: pre-wrap; }
     <item>
      <widget class="QPushButton" name="pushButton">
       <property name="text">
-       <string>皮肤原画获取</string>
+       <string>资源获取(皮肤原画,图标等)</string>
       </property>
      </widget>
     </item>
@@ -395,7 +395,7 @@ p, li { white-space: pre-wrap; }
     <string>设置</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_8">
+  <widget class="QPushButton" name="help">
    <property name="geometry">
     <rect>
      <x>510</x>

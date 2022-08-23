@@ -83,7 +83,7 @@ class LcuThread(QThread):
     test = QtCore.pyqtSignal(int)  # 符文内英雄头像
     fuwen = QtCore.pyqtSignal(bool)  #
 
-    def __init__(self, lcu_request):
+    def __init__(self, lcu_request: LcuRequest):
         super().__init__()
         self.acceptflag = False
         self.choiceflag = False
