@@ -4,7 +4,6 @@ import os
 import re
 import time
 import traceback
-
 import requests
 import urllib3
 from PyQt5 import QtCore
@@ -56,6 +55,7 @@ class LcuRequest:
                 break
         port = re.split('1:([0-9]*)', too)[1]
         pw = re.split('riot:([\\w-]*)', too)[1]
+        print(port, pw)
         return port, pw
 
     def getdata(self, path, method='get', headers=None, data=None):
@@ -81,16 +81,19 @@ class LcuThread(QThread):
     gameLoad = QtCore.pyqtSignal()  # 读取信息
     window_enable = QtCore.pyqtSignal(bool)  # 窗口是否可点击
     test = QtCore.pyqtSignal(int)  # 符文内英雄头像
-    fuwen = QtCore.pyqtSignal(bool)  #
+    # fuwen = QtCore.pyqtSignal(bool)  #
+    set_fuwen_hero = QtCore.pyqtSignal(str)
 
     def __init__(self, lcu_request: LcuRequest):
         super().__init__()
-        self.acceptflag = False
-        self.choiceflag = False
+        self.accept_flag = False
+        self.choice_flag = False
         self.stop = True
         self.lcures = lcu_request
-        self.herochoose = -1
-        self.find = FindLolQP()
+        self.hero_choose = -1
+        self.summoner_id = ''
+
+    #  self.find = FindLolQP()
 
     def run(self):
         while self.stop:
@@ -103,6 +106,7 @@ class LcuThread(QThread):
                             pass
                         # 二级加载，通过异常判断客户端是否加载完毕
                         self.add_text.emit("客户端已经载入!")
+                        self.summoner_id = self.lcures.getdata('/lol-summoner/v1/current-summoner').json()['summonerId']
                         self.gameLoad.emit()  # 初始化
                         # ----------------------
                         while self.stop and check_proc('LeagueClient.exe'):
@@ -113,25 +117,34 @@ class LcuThread(QThread):
                                 try:
                                     # 判断是否在房间内
                                     if self.lcures.getdata("/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':
+
                                         team, my_cellid = self.get_team_information()
-                                        self.lcures.getdata('/lol-champ-select/v1/session/actions/' + str(my_cellid),
-                                                            'PATCH', {}, {
-                                                                "championId": self.herochoose,
-                                                                "completed": False
-                                                            })
+                                        if self.accept_flag:
+                                            self.lcures.getdata(
+                                                '/lol-champ-select/v1/session/actions/' + str(my_cellid),
+                                                'PATCH', {}, {
+                                                    "championId": self.hero_choose,
+                                                    "completed": False
+                                                })
+
                                         # 秒抢
-                                        chat_id = self.lcures.getdata("/lol-chat/v1/conversations").json()[0]['id']
+
+                                        #  chat_id = self.lcures.getdata("/lol-chat/v1/conversations").json()[0]['id']
                                         environment = \
                                             self.lcures.getdata("/riotclient/v1/crash-reporting/environment").json()[
                                                 'environment']
-                                        self.team_se(team.keys(), environment, chat_id)
+                                        # self.team_se(team.keys(), environment, chat_id)
                                         # 预获取信息
-                                        while self.lcures.getdata(
-                                                "/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':
-                                            pass
+                                        while self.lcures.getdata("/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':
+
+                                            name = self.lcures.getdata(f'/lol-champ-select/v1/summoners/{str(my_cellid-1)}').json()[
+                                                "championName"]
+
+                                            self.set_fuwen_hero.emit(name)
 
 
-                                    elif self.acceptflag:
+
+                                    elif self.accept_flag:
                                         self.lcures.getdata('/lol-matchmaking/v1/ready-check/accept', 'post')
                                 except Exception as e:
                                     traceback.print_exc()
@@ -150,13 +163,13 @@ class LcuThread(QThread):
 
         :return:
         """
-        my_summonerid = self.lcures.getdata('/lol-summoner/v1/current-summoner').json()['summonerId']
+
         my_cellid = None
         team = {}
         for i in range(5):
             info = self.lcures.getdata(f'/lol-champ-select/v1/summoners/{i}').json()
             if info["summonerId"] > 0:
-                if info["summonerId"] == my_summonerid:
+                if info["summonerId"] == self.summoner_id:
                     my_cellid = info["cellId"] + 1
                 else:
                     team[self.lcures.getdata("/lol-summoner/v1/summoners/" + str(info["summonerId"])).json()[

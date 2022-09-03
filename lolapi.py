@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'lolapi.ui'
+# Form implementation generated from reading ui_home file 'lolapi.ui_home'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #

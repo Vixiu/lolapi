@@ -1,18 +1,13 @@
-import sys
-import time
-# int(time.time() / 600000)
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
+lane_ch = {
+    'top': '上单',
+    'mid': '中单',
+    'jungle': '打野',
+    'support': '辅助',
+    'bottom': '下路',
+}
+ls={
+    'top':1,
+    'mid':2
 
-import FuwenUi
-from Lcu import LcuRequest, check_proc
-
-lolpath = 'F:\\1\\英雄联盟-\\LeagueClient'
-
-lcures = LcuRequest(lolpath)
-p=''
-res=lcures.getdata('/lol-regalia/v2/summoners/2935096509/regalia')
-print(res.text)
-
-
-
-# https://127.0.0.1:61621/lol-lobby/v2/comms/members
+}
+print([lane_ch[i] for i in ls.keys()])
