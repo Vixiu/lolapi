@@ -4,6 +4,9 @@ import sys
 import time
 from threading import Thread
 
+import qdarkstyle
+import qdarktheme
+import qtmodern
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QPainterPath
 from PyQt5.QtGui import QPixmap, QImage
@@ -12,7 +15,7 @@ from PyQt5.QtWidgets import QCompleter
 from pypinyin import lazy_pinyin
 from requests import request
 from win32api import Sleep
-
+from qt_material import apply_stylesheet, list_themes
 import lolapi
 # from Fuwendemo import FuWen
 from FuWen import FuWen, GetData
@@ -29,9 +32,12 @@ def add_text(_str):
 
 
 def set_text(_str, color):
-    char_list = ['', '>', '>>', '>>>', '>>>>']
-    ui_home.Gongao.setText(
-        "<font color=" + color + " size='6'>" + _str + char_list[round(time.time()) % len(char_list)] + "<font>")
+    ui_home.state.setText(_str)
+    _ = ui_home.dial.value()
+    if _ > 98:
+        _ = 0
+
+    ui_home.dial.setValue(_ + 5)
 
 
 def randomcolor():
@@ -84,25 +90,29 @@ def avatar_round(_user):
 
 
 def load_data():
-    global user, hero, ls
+    global user, hero, hero_name_id
     user = lcu.getdata('/lol-summoner/v1/current-summoner').json()
     ui_home.name.setText(user['internalName'])
     ui_home.profile.setPixmap(avatar_round(user))  # 圆形头像
+
     for i in lcu.getdata('/lol-champions/v1/owned-champions-minimal').json():
-        hero[i['name']] = {
+        hero[str(i['id'])] = {
             "squarePortraitPath": i['squarePortraitPath'],
-            "id": str(i['id']),
-            'title': i['title'],
-            'name': i['name']
+            'name': i['title'],
+            'title': i['name']
         }
+        hero_name_id[f"{i['name']}-{i['title']}"] = str(i['id'])
 
     ui_home.herolist.clear()
-    ui_home.herolist.addItems(sorted(hero.keys(), key=lambda x: lazy_pinyin(x)))  # 列表内添加英雄
-    completer = QCompleter(hero.keys())
+
+    ui_home.herolist.addItems(sorted(hero_name_id.keys(), key=lambda x: lazy_pinyin(x)))  # 列表内添加英雄
+
+    completer = QCompleter(hero_name_id.keys())
     completer.setFilterMode(Qt.MatchContains)
     ui_home.herolist.setCompleter(completer)
+
     # ui_home.hero.completer('')
-    load_perk()
+    load_hero_data()
 
     add_text('初始化完毕!')
 
@@ -120,7 +130,7 @@ def start():
     ###############################################################
     ui_home.herolist.highlighted[str].connect(
         lambda s: ui_home.profile.setPixmap(
-            QPixmap(QImage.fromData(lcu.getdata(hero[s]['squarePortraitPath']).content))))
+            QPixmap(QImage.fromData(lcu.getdata(hero[hero_name_id[s]]['squarePortraitPath']).content))))
     ui_home.zdjs.stateChanged.connect(lambda s: auto_accept(s))
     ui_home.herolist.activated[str].connect(lambda s: grab_hero(s))
 
@@ -140,48 +150,46 @@ def start():
     qthread.gameLoad.connect(load_data)  # 载入
     qthread.window_enable.connect(lambda b: main_window.setEnabled(b))
     ###############################################################
-    app.exec_()  # 开始
-    qthread.stop = False  # 线程退出
 
 
-def load_perk():
+def load_hero_data():
     global qthread_ls
     perk_id = {}
 
-    for i in lcu.getdata('/lol-perks/v1/perks').json():
-        i = dict(i)
-        perk_id[str(i['id'])] = {
-            'iconPath': i['iconPath']
+    for _ in lcu.getdata('/lol-perks/v1/perks').json():
+        _ = dict(_)
+        perk_id[str(_['id'])] = {
+            'iconPath': _['iconPath']
         }
 
-    for i in lcu.getdata('/lol-perks/v1/styles').json():
-        for j in i['slots']:
+    for _ in lcu.getdata('/lol-perks/v1/styles').json():
+        for j in _['slots']:
             for k in j['perks']:
                 fw.rune_data[str(k)] = {
-                    'id': i['id'],
-                    'defaultSubStyle': i['defaultSubStyle']
+                    'id': _['id'],
+                    'defaultSubStyle': _['defaultSubStyle']
 
                 }
 
-    for i in fw.rune_data:
-        a = GetData(perk_id[i]['iconPath'], i, lcu)
-        a.data.connect(save_perk_icon)
+    for _ in fw.rune_data:
+        a = GetData(perk_id[_]['iconPath'], _, lcu)
+        a.data.connect(save_rune_icon)
         a.start()
         qthread_ls.append(a)
 
-    for i in hero:
-        a = GetData(f'https://lol.qq.com/act/lbp/common/guides/champDetail/champDetail_{hero[i]["id"]}.js',
-                    str(hero[i]["id"]))
-        a.data.connect(save_perk_data)
+    for _ in hero:
+        a = GetData(f'https://lol.qq.com/act/lbp/common/guides/champDetail/champDetail_{_}.js', _)
+        a.data.connect(save_hero_rune)
         a.start()
         qthread_ls.append(a)
 
 
 def test1():
-    fw.set_hero(hero['暗裔剑魔'])
+    key = random.choice(list(hero.keys()))
+    fw.set_hero(key, hero[key]['name'], hero[key]['squarePortraitPath'])
 
 
-def save_perk_data(hero_id, data):
+def save_hero_rune(hero_id, data):
     """
 
     :param hero_id: 英雄id
@@ -210,7 +218,7 @@ def save_perk_data(hero_id, data):
         _ls = []
         for i in ['1', '2', '3', '4', '5']:
             for j in ['1', '2']:
-                if i not in perk_detail or j not in perk_detail[i]  :
+                if i not in perk_detail or j not in perk_detail[i]:
                     continue
                 _ = {}
                 win_rate = str(perk_detail[i][j]['winrate']).ljust(4, '0')
@@ -221,13 +229,17 @@ def save_perk_data(hero_id, data):
                 _ls.append(_)
         rune_data[lane_ch[lane]] = _ls
     fw.hero_data[hero_id] = {
-        'best_lane': [] if data['list']['championFight'] is None else [lane_ch[lane] for lane in
-                                                                       data['list']['championFight'].keys()],
+        # 'best_lane': [] if data['list']['championFight'] is None else [lane_ch[lane] for lane in data['list']['championFight'].keys()],
         'rune_data': rune_data
     }
+    set_text(f'正在读取符文-->{hero_id}', 1)
 
 
-def save_perk_icon(perk_id, data):
+def save_hero_lane(_, data):
+    data = json.loads(data[data.index('{'):data.rindex('}') + 1])
+
+
+def save_rune_icon(perk_id, data):
     """
 
     :param perk_id: 符文id
@@ -241,6 +253,8 @@ def save_perk_icon(perk_id, data):
 app = QApplication(sys.argv)
 hero = {}
 user = {}
+hero_name_id = {}
+
 LOL_PATH = 'F:\\1\\英雄联盟-\\LeagueClient'
 lcu = LcuRequest(LOL_PATH)
 qthread = LcuThread(lcu)
@@ -248,6 +262,15 @@ ui_home = lolapi.Ui_Frame()
 qthread_ls = []
 fw = FuWen(lcu)
 hero_select = ''
-##################################
 
+########Ui暂时性适配##################
+
+
+###########后续直接移入py文件###################
+
+
+app.setStyleSheet(qdarktheme.load_stylesheet("light"))
 start()  # 开始
+
+app.exec_()  # 开始
+qthread.stop = False  # 线程退出

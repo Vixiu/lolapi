@@ -134,46 +134,6 @@
     <string>小技巧</string>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>90</y>
-     <width>231</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <item>
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>最佳搭档</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>头像1</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>头像1</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>头像1</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="Line" name="line">
    <property name="geometry">
     <rect>
@@ -214,7 +174,7 @@
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>50</y>
+     <y>60</y>
      <width>231</width>
      <height>21</height>
     </rect>
@@ -243,25 +203,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>70</y>
-     <width>231</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
-    <item>
-     <widget class="QLabel" name="hero_lane">
-      <property name="text">
-       <string>推荐位置:上/中/下/野/辅</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QComboBox" name="switch_location">
    <property name="geometry">
     <rect>
@@ -284,6 +225,19 @@
      <string>中单</string>
     </property>
    </item>
+  </widget>
+  <widget class="QLabel" name="hero_lane">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>90</y>
+     <width>229</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>推荐位置:上/中/下/野/辅</string>
+   </property>
   </widget>
  </widget>
  <resources/>

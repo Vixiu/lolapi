@@ -5,7 +5,7 @@ from time import time
 
 from PyQt5.QtCore import Qt, QThread
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPainterPath
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QVBoxLayout, QGraphicsDropShadowEffect
 from FuWenUI import Ui_FuWen
 from Lcu import LcuRequest
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -14,14 +14,23 @@ from requests import request
 
 class FuWen(QMainWindow, Ui_FuWen):
     def __init__(self, lcu: LcuRequest):
+
+
+
+
+
         super(FuWen, self).__init__()
+
+
+
 
         self.lcu = lcu
         self.setupUi(self)
 
         self.rune_data = {}
+        # 符文数据 图标,id
         self.hero_data = {}
-
+        # 英雄数据 符文,位置, 等
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
         self.fuwenlist.setMaximumSize(430, 950)  # ---
@@ -44,12 +53,12 @@ class FuWen(QMainWindow, Ui_FuWen):
         for i in self.hero_data[self.hero_id]['rune_data'][lane]:
             self.add_rune(i, lane)
 
-    def set_hero(self, hero):
+    def set_hero(self,hero_id,hero_name,hero_icon):
 
-        self.hero_name.setText(hero['name'])
+        self.hero_name.setText(hero_name)
         # self.hero_avatar.setPixmap(QPixmap(QImage.fromData(self.lcu.getdata(hero['squarePortraitPath']).content)))  # 方形头像
-        self.hero_avatar.setPixmap(self.round_scr(hero['squarePortraitPath']))  # 圆形头像
-        self.hero_id = hero['id']
+        self.hero_avatar.setPixmap(self.round_scr(hero_icon))  # 圆形头像
+        self.hero_id = hero_id
         self.switch_location.clear()
         self.switch_location.addItems(self.hero_data[self.hero_id]['rune_data'])
         self.switch('中单')
