@@ -1,11 +1,9 @@
-import json
-import sys
-from threading import Thread
-from time import time
+import asyncio
 
+import aiohttp
 from PyQt5.QtCore import Qt, QThread
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPainterPath
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QVBoxLayout, QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout
 from FuWenUI import Ui_FuWen
 from Lcu import LcuRequest
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -15,15 +13,8 @@ from requests import request
 class FuWen(QMainWindow, Ui_FuWen):
     def __init__(self, lcu: LcuRequest):
 
-
-
-
-
         super(FuWen, self).__init__()
-
-
-
-
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.lcu = lcu
         self.setupUi(self)
 
@@ -31,6 +22,14 @@ class FuWen(QMainWindow, Ui_FuWen):
         # 符文数据 图标,id
         self.hero_data = {}
         # 英雄数据 符文,位置, 等
+        self.zh_ch = {
+            'top': '上单',
+            'mid': '中单',
+            'jungle': '打野',
+            'support': '辅助',
+            'bottom': '下路',
+        }
+
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
         self.fuwenlist.setMaximumSize(430, 950)  # ---
@@ -41,27 +40,78 @@ class FuWen(QMainWindow, Ui_FuWen):
 
         self.show()
         self.hero_id = ''
+        self.tier = ''  # 待删除
         # ui_home.herolist.activated[str].connect(lambda s: grab_hero(s))
-        self.switch_location.activated[str].connect(lambda s: self.switch(s))
+        self.switch_location.activated.connect(lambda: self.switch(self.switch_location.currentData()))
+        self.queues = ''
+        self.queues_info = {
+            '430': '420',
+            '420': '420',
+            '440': '440',
+            '450': '450',
+            '1400': '420',
+            '1200': '420',
+            '1300': '420',
+        }
 
     #  self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+    def initialize_hero_data(self):
+
+        #  lane = ['top', 'mid', 'jungle', 'support', 'bottom']
+        #  tier = ['challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron']
+
+        return {
+            'rune_data': 'None',
+            'best_lane': [],
+            'rank': 'None',
+            'ranging': {
+                '450': {},
+                '420': {},
+                '440': {}
+            }
+        }
 
     def switch(self, lane):
+        # 清楚布局
+
         for i in range(self.vbox.count()):
             self.vbox.itemAt(i).widget().deleteLater()
 
         for i in self.hero_data[self.hero_id]['rune_data'][lane]:
-            self.add_rune(i, lane)
+            self.add_rune(i, f'{self.hero_name.text()}-{self.zh_ch[lane]}')
+        if lane in self.hero_data[self.hero_id]['ranging'][self.queues]:
+            if self.tier not in self.hero_data[self.hero_id]['ranging'][self.queues][lane]:
+                self.tier = list(self.hero_data[self.hero_id]['ranging'][self.queues][lane].keys())[0]
+            self.hero_gradient.setText('梯度:T' + self.hero_data[self.hero_id]['ranging'][self.queues][lane][self.tier][1])
+            self.hero_ranking.setText('排名:' + self.hero_data[self.hero_id]['ranging'][self.queues][lane][self.tier][0])
+            self.hero_win.setText('胜率:' + format(float(self.hero_data[self.hero_id]['ranging'][self.queues][lane][self.tier][2]), '.2%'))
+        else:
+            self.hero_gradient.setText('暂无数据')
+            self.hero_ranking.setText('')
+            self.hero_win.setText('')
 
-    def set_hero(self,hero_id,hero_name,hero_icon):
+    def set_hero(self, hero_id, hero_name, hero_icon, queues='420', lane=None, tier='gold'):
 
+        self.hero_id = hero_id
+        self.queues = self.queues_info.get(queues, '420')
+
+        self.tier = tier
+        if lane not in self.hero_data[hero_id]['best_lane']:
+            lane = list(self.hero_data[self.hero_id]['rune_data'].keys())[0]
+
+        best_lane = '推荐位置:'
+        for _ in self.hero_data[hero_id]['best_lane']:
+            best_lane = best_lane + self.zh_ch[_] + ' '
+        self.lane_bast_ui.setText(best_lane)
         self.hero_name.setText(hero_name)
         # self.hero_avatar.setPixmap(QPixmap(QImage.fromData(self.lcu.getdata(hero['squarePortraitPath']).content)))  # 方形头像
         self.hero_avatar.setPixmap(self.round_scr(hero_icon))  # 圆形头像
-        self.hero_id = hero_id
         self.switch_location.clear()
-        self.switch_location.addItems(self.hero_data[self.hero_id]['rune_data'])
-        self.switch('中单')
+
+        for _ in self.hero_data[self.hero_id]['rune_data']:
+            self.switch_location.addItem(self.zh_ch[_], _)
+        self.switch_location.setCurrentText(self.zh_ch[lane])
+        self.switch(lane)
 
     def add_rune(self, rune_data, name):
 
@@ -241,18 +291,45 @@ class FuWen(QMainWindow, Ui_FuWen):
 
 class GetData(QThread):
     data = QtCore.pyqtSignal(str, object)
+    add_text = QtCore.pyqtSignal(str)
+    set_sata = QtCore.pyqtSignal(str)
 
-    def __init__(self, path, _id, lcu: LcuRequest = None):
+    def __init__(self, info, text, lcu):
         super().__init__()
-        self._id = _id
-        self.path = path
+        self.text = text
         self.lcu = lcu
+        self.info = info
 
     def run(self):
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        loop = asyncio.get_event_loop()
+        task = []
         if self.lcu is None:
-            res = request('get', self.path).text
+            for _id in self.info:
+                _ = loop.create_task(self.async_get(_id, self.info[_id]))
+                task.append(_)
+            # self.data.emit(_id, request('get', self.info[_id]).text)
 
-            self.data.emit(self._id, res)
         else:
-            res = QPixmap(QImage.fromData(self.lcu.getdata(self.path).content))
-            self.data.emit(self._id, res)
+            for _id in self.info:
+                _ = loop.create_task(self.async_lcu(_id, self.info[_id]))
+                task.append(_)
+            #    self.data.emit(_id, QPixmap(QImage.fromData(self.lcu.getdata(self.info[_id]).content)))
+        for _ in task:
+            _.add_done_callback(self.emit_data)
+        loop.run_until_complete(asyncio.wait(task))
+
+
+
+    async def async_get(self, _id, url):
+        async with aiohttp.ClientSession() as session:
+            async with await session.get(url) as resp:
+                page_text = await resp.text()
+                return _id, page_text
+
+    async def async_lcu(self, _id, url):
+        return _id, QPixmap(QImage.fromData(self.lcu.getdata(url).content))
+
+    def emit_data(self, info):
+        _id, data = info.result()
+        self.data.emit(_id, data)

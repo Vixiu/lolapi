@@ -1,23 +1,15 @@
-import json
-import random
-import sys
-import time
-from threading import Thread
+import asyncio
+import json, random, sys
 
-import qdarkstyle
+import aiohttp
 import qdarktheme
-import qtmodern
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPainter, QPainterPath
-from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtWidgets import QCompleter
+from PyQt5.QtGui import QPainter, QPainterPath, QPixmap, QImage
+from PyQt5.QtWidgets import QApplication, QMainWindow, QCompleter
 from pypinyin import lazy_pinyin
-from requests import request
-from win32api import Sleep
-from qt_material import apply_stylesheet, list_themes
+
 import lolapi
-# from Fuwendemo import FuWen
+
 from FuWen import FuWen, GetData
 
 from Lcu import LcuRequest, LcuThread
@@ -31,12 +23,11 @@ def add_text(_str):
     ui_home.Gongao.append("<font color='{color}' size='4'>".format(color=randomcolor()) + _str + "<font>")
 
 
-def set_text(_str, color):
-    ui_home.state.setText(_str)
+def set_state(_str, color='#000000'):
+    ui_home.state.setText("<font color='{color}' size='4'>".format(color=color) + _str + "<font>")
     _ = ui_home.dial.value()
-    if _ > 98:
-        _ = 0
-
+    if _ >= 100:
+        _ = -10
     ui_home.dial.setValue(_ + 5)
 
 
@@ -62,7 +53,8 @@ def choose_hero(state):
         qthread.choice_flag = False
         ui_home.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '秒抢>>>已关闭' + "<font>")
     else:
-        qthread.hero_choose = hero[ui_home.herolist.currentText()]['id']
+
+        qthread.hero_choose = hero_name_id[ui_home.herolist.currentText()]
         ui_home.Gongao.append(
             "<font color='{color}'>".format(color=randomcolor()) + '秒抢>>>' + ui_home.herolist.currentText() + "<font>")
 
@@ -91,71 +83,28 @@ def avatar_round(_user):
 
 def load_data():
     global user, hero, hero_name_id
+    # 获取用户信息
     user = lcu.getdata('/lol-summoner/v1/current-summoner').json()
+    # 设置用户头像 名字
     ui_home.name.setText(user['internalName'])
     ui_home.profile.setPixmap(avatar_round(user))  # 圆形头像
+    # 获取英雄信息
+    # /lol-champions/v1/owned-champions-minimal
 
-    for i in lcu.getdata('/lol-champions/v1/owned-champions-minimal').json():
+    for i in lcu.getdata('/lol-game-data/assets/v1/champion-summary.json').json()[1:]:
         hero[str(i['id'])] = {
             "squarePortraitPath": i['squarePortraitPath'],
-            'name': i['title'],
-            'title': i['name']
+            'name': i['name'],
         }
-        hero_name_id[f"{i['name']}-{i['title']}"] = str(i['id'])
-
+        hero_name_id[i['name']] = str(i['id'])
+    # 下拉列表内添加数据，并键入提示
     ui_home.herolist.clear()
-
     ui_home.herolist.addItems(sorted(hero_name_id.keys(), key=lambda x: lazy_pinyin(x)))  # 列表内添加英雄
-
     completer = QCompleter(hero_name_id.keys())
     completer.setFilterMode(Qt.MatchContains)
     ui_home.herolist.setCompleter(completer)
-
-    # ui_home.hero.completer('')
-    load_hero_data()
-
-    add_text('初始化完毕!')
-
-
-def set_hero(name):
-    if (name != fw.hero['name']) and (name != ''):
-        print(name)
-        fw.set_hero(hero[name])
-
-
-def start():
-    main_window = QMainWindow()
-    ui_home.setupUi(main_window)
-    main_window.show()
-    ###############################################################
-    ui_home.herolist.highlighted[str].connect(
-        lambda s: ui_home.profile.setPixmap(
-            QPixmap(QImage.fromData(lcu.getdata(hero[hero_name_id[s]]['squarePortraitPath']).content))))
-    ui_home.zdjs.stateChanged.connect(lambda s: auto_accept(s))
-    ui_home.herolist.activated[str].connect(lambda s: grab_hero(s))
-
-    ui_home.checkBox.stateChanged.connect(lambda s: choose_hero(s))
-
-    # ui_home.hero.editTextChanged.connect(lambda s:print(s))
-    #  ui_home.herolist.currentIndexChanged.connect(lambda s: print(s))
-
-    ui_home.help.clicked.connect(test1)
-    # ui_home.pushButton_7.clicked.connect(test2)
-
-    ###############################################################
-    qthread.start()
-    qthread.set_fuwen_hero.connect(set_hero)
-    qthread.add_text.connect(add_text)
-    qthread.set_text.connect(set_text)
-    qthread.gameLoad.connect(load_data)  # 载入
-    qthread.window_enable.connect(lambda b: main_window.setEnabled(b))
-    ###############################################################
-
-
-def load_hero_data():
-    global qthread_ls
+    # 加载符文数据
     perk_id = {}
-
     for _ in lcu.getdata('/lol-perks/v1/perks').json():
         _ = dict(_)
         perk_id[str(_['id'])] = {
@@ -170,45 +119,108 @@ def load_hero_data():
                     'defaultSubStyle': _['defaultSubStyle']
 
                 }
-
-    for _ in fw.rune_data:
-        a = GetData(perk_id[_]['iconPath'], _, lcu)
-        a.data.connect(save_rune_icon)
-        a.start()
-        qthread_ls.append(a)
-
+    # 得到要处理的 图标数据 网络数据json-----------------------
     for _ in hero:
-        a = GetData(f'https://lol.qq.com/act/lbp/common/guides/champDetail/champDetail_{_}.js', _)
-        a.data.connect(save_hero_rune)
+        fw.hero_data[_] = fw.initialize_hero_data()
+    data = {
+        '符文-图标': {
+            'lcu': lcu,
+            'data': {_: perk_id[_].get('iconPath') for _ in fw.rune_data},
+            'faction': save_rune_icon
+        },
+        '英雄-符文': {
+            'lcu': None,
+            'data': {_: f'https://lol.qq.com/act/lbp/common/guides/champDetail/champDetail_{_}.js' for _ in hero},
+            'faction': save_hero_rune
+        },
+        '英雄-头像': {
+            'lcu': lcu,
+            'data': {_: hero[_].get('squarePortraitPath') for _ in hero},
+            'faction': save_hero_icon
+        },
+        '英雄-排名': {
+            "lcu": None,
+            'data': {f'{_}-{lane}-{tier[1]}': f'https://x1-6833.native.qq.com/x1/6833/1061021&3af49f?championid=666&lane={lane}&ijob=all&gamequeueconfigid={_}&tier={tier[0]}' for _ in ['440', '420']
+                     for lane in ['top', 'mid', 'jungle', 'support', 'bottom'] for tier in
+                     [('0', 'challenger'), ('5', 'grandmaster'), ('6', 'master'), ('10', 'diamond'), ('20', 'platinum'), ('30', 'gold'), ('40', 'silver'), ('50', 'bronze'), ('80', 'iron'), ]},
+            'faction': save_hero_ranking
+        },
+        '英雄-位置': {
+            "lcu": None,
+            'data': {'-': 'https://lol.qq.com/act/lbp/common/guides/guideschampion_position.js'},
+            'faction': save_hero_lane
+        }
+    }
+
+    # 多线程处理,后续可能改为多进程处理
+
+    for _ in data:
+        a = GetData(data[_]['data'], _, data[_]['lcu'])
         a.start()
-        qthread_ls.append(a)
+        a.data.connect(data[_]['faction'])
+        a.add_text.connect(add_text)
+        a.set_sata.connect(set_state)
+        qthread.loading_thread.append(a)
+    qthread.wake()
+
+
+def set_hero(hero_id, lane, queues):
+    if hero_id != fw.hero_id:
+        print(hero_id, lane, queues)
+        fw.set_hero(hero_id, hero[hero_id]['name'], hero[hero_id]['squarePortraitPath'], queues, lane)
+
+
+def set_show(bl):
+    if bl:
+        fw.show()
+    else:
+        fw.hide()
+
+
+def start():
+    main_window = QMainWindow()
+    ui_home.setupUi(main_window)
+    main_window.show()
+    ##########################################################
+    ui_home.herolist.highlighted[str].connect(
+        lambda s: ui_home.profile.setPixmap(hero[hero_name_id[s]]['icon']))
+    ui_home.zdjs.stateChanged.connect(lambda s: auto_accept(s))
+    ui_home.herolist.activated[str].connect(lambda s: grab_hero(s))
+
+    ui_home.checkBox.stateChanged.connect(lambda s: choose_hero(s))
+
+    # ui_home.hero.editTextChanged.connect(lambda s:print(s))
+    #  ui_home.herolist.currentIndexChanged.connect(lambda s: print(s))
+
+    ui_home.help.clicked.connect(test1)
+    # ui_home.pushButton_7.clicked.connect(test2)
+    ###############################################################
+    qthread.start()
+    qthread.set_fuwen_hero.connect(set_hero)
+    qthread.add_text.connect(add_text)
+    qthread.set_text.connect(set_state)
+    qthread.gameLoad.connect(load_data)  # 载入
+    qthread.set_fuwen_show.connect(set_show)
+    qthread.window_enable.connect(lambda b: main_window.setEnabled(b))
+    ###############################################################
 
 
 def test1():
-    key = random.choice(list(hero.keys()))
-    fw.set_hero(key, hero[key]['name'], hero[key]['squarePortraitPath'])
+    key = '72'
+    # key = random.choice(list(hero.keys()))
+    # print(fw.hero_data[key])
+    print(hero[key]['name'], key)
+    fw.set_hero(key, hero[key]['name'], hero[key]['squarePortraitPath'], '440')
 
 
 def save_hero_rune(hero_id, data):
     """
-
     :param hero_id: 英雄id
-    :param data: {
-    rune_data:
-       top:[{rune:[],win_rate:00.00%,show_rate:00.00%},]
-    ,
-    best_lane:['top',,,,]
-    }
+    :param data:
+
     :return:
     """
     # 根据官网,符文数据共五组，每组里取前俩个
-    lane_ch = {
-        'top': '上单',
-        'mid': '中单',
-        'jungle': '打野',
-        'support': '辅助',
-        'bottom': '下路',
-    }
     data = json.loads(data[data.index('{'):data.rindex('}') + 1])
     rune_data = {}
     for lane in data['list']['championLane']:
@@ -227,16 +239,44 @@ def save_hero_rune(hero_id, data):
                 _['win_rate'] = f'胜率:{win_rate[0:2]}.{win_rate[2:]}%'
                 _['show_rate'] = f'使用率:{show_rate[0:2]}.{show_rate[2:]}%'
                 _ls.append(_)
-        rune_data[lane_ch[lane]] = _ls
+        rune_data[lane] = _ls
+
+    fw.hero_data[hero_id]['rune_data'] = rune_data
+
+    '''
     fw.hero_data[hero_id] = {
-        # 'best_lane': [] if data['list']['championFight'] is None else [lane_ch[lane] for lane in data['list']['championFight'].keys()],
+        # 'best_lane': [] if data['list']['championFight'] is None else [zh_ch[lane] for lane in data['list']['championFight'].keys()],
         'rune_data': rune_data
     }
-    set_text(f'正在读取符文-->{hero_id}', 1)
+    '''
+    set_state(f'加载英雄-符文-->{hero[hero_id]["name"]}')
 
 
 def save_hero_lane(_, data):
-    data = json.loads(data[data.index('{'):data.rindex('}') + 1])
+    data = json.loads(data[data.index('{'):data.rindex('}') + 1])['list']
+    for _ in data:
+        fw.hero_data[_]['best_lane'] = list(data[_].keys())
+
+
+def save_hero_ranking(ids, data):
+    data = json.loads(data)
+    ids = ids.split('-')
+
+    for _ in json.loads(data['data']['result'])['championdetails'].split('#'):
+        _ = _.split('_', 6)[0:6]
+        hero_id = _.pop(1)
+        if ids[1] in fw.hero_data[hero_id]['ranging'][ids[0]]:
+            fw.hero_data[hero_id]['ranging'][ids[0]][ids[1]][ids[2]] = _
+        else:
+
+            fw.hero_data[hero_id]['ranging'][ids[0]][ids[1]] = {ids[2]: _}
+
+    set_state(f'加载英雄-排名-->{ids[1]}')
+
+
+def save_hero_icon(hero_id, data):
+    hero[hero_id]['icon'] = data
+    set_state(f'加载英雄-图标-->{hero[hero_id]["name"]}')
 
 
 def save_rune_icon(perk_id, data):
@@ -247,30 +287,29 @@ def save_rune_icon(perk_id, data):
     :return:
     """
     fw.rune_data[perk_id]['icon'] = data
+    set_state(f'加载符文-图标-->{perk_id}')
 
 
-# Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
-app = QApplication(sys.argv)
-hero = {}
-user = {}
-hero_name_id = {}
-
-LOL_PATH = 'F:\\1\\英雄联盟-\\LeagueClient'
-lcu = LcuRequest(LOL_PATH)
-qthread = LcuThread(lcu)
-ui_home = lolapi.Ui_Frame()
-qthread_ls = []
-fw = FuWen(lcu)
-hero_select = ''
-
-########Ui暂时性适配##################
 
 
-###########后续直接移入py文件###################
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    hero = {}
+    user = {}
+    hero_name_id = {}
 
+    LOL_PATH = 'F:\\1\\英雄联盟-\\LeagueClient'
+    lcu = LcuRequest(LOL_PATH)
+    qthread = LcuThread(lcu)
+    ui_home = lolapi.Ui_Frame()
+    fw = FuWen(lcu)
+    hero_select = ''
 
-app.setStyleSheet(qdarktheme.load_stylesheet("light"))
-start()  # 开始
+    ########Ui暂时性适配##################
+    # Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
+    ###########后续直接移入py文件###################
 
-app.exec_()  # 开始
-qthread.stop = False  # 线程退出
+    app.setStyleSheet(qdarktheme.load_stylesheet("light"))
+    start()  # 初始化数据
+    app.exec_()  # 开始
+    qthread.stop = False  # 线程退出
