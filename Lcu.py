@@ -1,77 +1,45 @@
+import asyncio
 from base64 import b64encode
 
 import json
-import os
-import re
+
 import time
 import traceback
-import requests
 
-import urllib3
+import aiohttp
+import requests
 
 import win32com.client
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread, QMutex, QWaitCondition
-
+from psutil import process_iter
+from win32api import Sleep
 from lol_find import FindLolQP
 
-'''
-def check_proc(name):
-    ps = os.popen("C:/WINDOWS/system32/tasklist.exe", "r")
-    pp = ps.readlines()
-    ps.close()
-    for i in pp:
-        if name in i:
-            return True
-    return False
-'''
-
-
-def check_proc(name):
-    print(1)
-    is_exist = False
-    wmi = win32com.client.GetObject('winmgmts:')
-    processCodeCov = wmi.ExecQuery('select * from Win32_Process where name=\"%s\"' % name)
-    if len(processCodeCov) > 0:
-        is_exist = True
-    return is_exist
-
+from urllib3 import disable_warnings
+from  requests import request
 
 class LcuRequest:
-    urllib3.disable_warnings()
+    disable_warnings()
 
-    def __init__(self, path):
-        self.path = path
-        self.port, self.pw = self.getportpw(path)
+    def __init__(self):
+        self.is_process = False
+        self.lcu_args = self.get_lcu_args()
+        self.port, self.pw = self.lcu_args.get('app-port', '0000'), self.lcu_args.get("remoting-auth-token", 'None')
         self.url = 'https://127.0.0.1:' + self.port
-        self.Authorization = b64encode(('riot' + ':' + self.pw).encode()).decode()
         self.headers = {
-            'Authorization': 'Basic ' + self.Authorization
+            "User-Agent": "LeagueOfLegendsClient",
+            'Authorization': 'Basic ' + b64encode(('riot' + ':' + self.pw).encode()).decode(),
+
         }
 
-    def getportpw(self, path):
-        dirlist = os.listdir(path)
-        dtlist = []
-        for i in dirlist:
-            if 'LeagueClientUxHelper-renderer' in i:
-                dtlist.append(i)
-        dtlist.sort(reverse=True)  # 排序
-        too = ''
-        for i in dtlist:
-            with open(path + '\\' + i, 'r', encoding='ansi') as file:
-                while True:
-                    line = file.readline()
-                    if line.find("bootstrap.html") != -1:
-                        too = line
-                        break
-                    elif line == '':
-                        break
-            if too != '':
-                break
-        port = re.split('1:([0-9]*)', too)[1]
-        pw = re.split('riot:([\\w-]*)', too)[1]
+    def get_lcu_args(self):
 
-        return port, pw
+        return {
+            line[2:].split('=', 1)[0]: line[2:].split('=', 1)[1]
+            for line in self.find_lcu_cmdline()
+            if '=' in line
+        }
 
     def getdata(self, path, method='get', headers=None, data=None):
         """
@@ -84,31 +52,37 @@ class LcuRequest:
         if headers is None:
             headers = {}
         headers.update(self.headers)
-        return requests.request(method, self.url + path, headers=self.headers, data=json.dumps(data), verify=False)
+        return request(method, self.url + path, headers=self.headers, data=json.dumps(data), verify=False)
 
-    def resetport(self):
-        self.__init__(self.path)
+    def find_lcu_cmdline(self):
+        for prs in process_iter():
+            if prs.name() in ['LeagueClientUx', 'LeagueClientUx.exe']:
+                self.is_process = True
+                return prs.cmdline()
+        self.is_process = False
+        return []
+
+    def reset(self):
+        self.__init__()
 
 
 class LcuThread(QThread):
     set_text = QtCore.pyqtSignal(str, str)  # 设置文本
     add_text = QtCore.pyqtSignal(str)  # 增加文本
-    gameLoad = QtCore.pyqtSignal()  # 读取信息
+    load_user_data = QtCore.pyqtSignal()  # 读取信息
     window_enable = QtCore.pyqtSignal(bool)  # 窗口是否可点击
-    test = QtCore.pyqtSignal(int)  # 符文内英雄头像
-    set_fuwen_show = QtCore.pyqtSignal(bool)  #
-    set_fuwen_hero = QtCore.pyqtSignal(str, str, str)
+    summoner_info = QtCore.pyqtSignal(int, dict)
+    summoner_hero = QtCore.pyqtSignal(int, int)
+    summoner_rect = QtCore.pyqtSignal()
+    summoner_show = QtCore.pyqtSignal()
 
     def __init__(self, lcu_request: LcuRequest):
         super().__init__()
-
         self.loading_thread = []
         self.mutex = QMutex()
         self.mutex.lock()
         self.cond = QWaitCondition()
-
-        self.accept_flag = False
-        self.choice_flag = False
+        self.accept_flag = True
         self.stop = True
         self.lcu = lcu_request
         self.hero_choose = -1
@@ -116,145 +90,122 @@ class LcuThread(QThread):
         self.find = FindLolQP()
 
     def hang(self):
+        # 挂起线程
         self.cond.wait(self.mutex)
 
     def wake(self):
+        # 唤醒线程
         self.cond.wakeAll()
 
-    '''
     def run(self):
         while self.stop:
             try:
-                self.lcures.resetport()  # 重置端口密码
-                while 'errorCode' in self.lcures.getdata('/lol-summoner/v1/current-summoner').json():
-                    pass
-                # 二级加载，通过异常判断客户端是否加载完毕
-                self.add_text.emit("客户端已经载入!")
-                self.summoner_id = self.lcures.getdata('/lol-summoner/v1/current-summoner').json()['summonerId']
-                self.gameLoad.emit()  # 初始化
-                # ----------------------
-                while self.stop and check_proc('LeagueClient.exe'):
-                    if check_proc('League of Legends.exe'):
-                        self.set_text.emit("游戏已经开始", "#FF1493")
-                        time.sleep(2)  # 稍加延迟
-                    else:
-                        try:
-                            # 判断是否在房间内
-                            if self.lcures.getdata("/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':
-                                team, my_cellid = self.get_team_information()
-                                if self.accept_flag:
-                                    self.lcures.getdata('/lol-champ-select/v1/session/actions/' + str(my_cellid), 'PATCH', {}, {
-                                        "championId": self.hero_choose,
-                                        "completed": False
-                                    })
-                                # 秒抢
-                              
-                                # 预获取信息
-                                while self.lcures.getdata("/lol-gameflow/v1/gameflow-phase").json() == 'ChampSelect':
-                                    name = self.lcures.getdata(f'/lol-champ-select/v1/summoners/{str(my_cellid - 1)}').json()["championName"]
-                                    self.set_fuwen_hero.emit(name)
-                            elif self.accept_flag:
-                                self.lcures.getdata('/lol-matchmaking/v1/ready-check/accept', 'post')
-                        except Exception as e:
-                            traceback.print_exc()
-                            print("错误--------------:", e)
-                            self.add_test.emit("客户端退出!")
-                            break
-            except Exception as e:
-                traceback.print_exc()
-                print("错误--------------:", e)
+                if self.lcu.is_process:
+                    print(self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').text)
+                    self.my_summoner_id = str(
+                        self.lcu.getdata('/lol-summoner/v1/current-summoner').json()['summonerId'])
 
-                self.set_text.emit("等待客户端开启", "#FF1493")
-'''
-
-    def run(self):
-        while self.stop:
-            try:
-                if 'errorCode' not in self.lcu.getdata('/lol-summoner/v1/current-summoner').json():
-                    # if self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').json() == 'None':
-                    t1=time.time()
-                    self.add_text.emit("客户端已经开启,准备初始化")
-                    self.gameLoad.emit()  # 初始化
-
-                    self.hang()  # 挂起线程,获取要读取的资源
-                    for th in self.loading_thread:
-                        th.wait()
-                    self.loading_thread = []
-                    self.add_text.emit(f"初始化完毕,共用时{time.time()-t1}秒")
-                    self.my_summoner_id = str(self.lcu.getdata('/lol-summoner/v1/current-summoner').json()['summonerId'])
+                    self.add_text.emit("客户端已开启!")
+                    self.load_user_data.emit()
                     while self.stop:
                         state = self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').json()
                         if state == "ChampSelect":
-                            self.set_text.emit("选择英雄", "#FF1493")
-                            self.set_fuwen_show.emit(True)
-                            my_info, my_team = self.get_team_information()
-                            #  自动接受
-                            self.lcu.getdata(f'/lol-champ-select/v1/session/actions/{my_info["cellId"]}', 'PATCH', {}, {
+                            self.summoner_rect.emit()
+                            self.set_text.emit("选择英雄中", "#FF1493")
+                            my_cellid, teammate_names = self.get_team_information()
+                            print(my_cellid, teammate_names)
+                            self.lcu.getdata(f'/lol-champ-select/v1/session/actions/{my_cellid}', 'PATCH', {}, {
                                 "championId": self.hero_choose,
                                 "completed": False
                             })
 
-                            #  chat_id = self.lcu.getdata("/lol-chat/v1/conversations").json()[0]['id']
-                            # environment = self.lcu.getdata("/riotclient/v1/crash-reporting/environment").json()['environment']
-                            #  self.team_se([my_team[_]['name']for _ in my_team], environment, chat_id)
-
-                            get_team_info = self.random_mode if len(self.lcu.getdata('/lol-champ-select/v1/session').json().get('actions', [])) == 0 else self.pick_mode
-                            mode_queues = self.lcu.getdata('/lol-gameflow/v1/session').json()['gameData']['queue']['id']
-                            while self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').json() == "ChampSelect":
-                                team_info = get_team_info()
-                                if team_info is None:
+                            chat_id = ''
+                            for chat_info in self.lcu.getdata("/lol-chat/v1/conversations").json():
+                                if chat_info["type"] == 'championSelect':
+                                    chat_id = chat_info['id']
                                     break
-                                if team_info[my_info['cellId']] != 0:
-                                    self.set_fuwen_hero.emit(str(team_info[my_info['cellId']]), my_info['lane'], str(mode_queues))
+                            environment = self.lcu.getdata("/riotclient/v1/crash-reporting/environment").json()[
+                                'environment']
 
-                            self.set_fuwen_show.emit(False)
+                            self.team_se(list(teammate_names.keys()), environment, chat_id)
+                            ###############
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+                            task = []
+                            for k, v in teammate_names.items():
+                                _ = loop.create_task(self.get_summoner(v, k, environment))
+                                _.add_done_callback(self.set_summoner_info)
+                                task.append(_)
+                            if len(task) != 0:
+                                loop.run_until_complete(asyncio.wait(task))
+                            ###############
+
+                            # mode_queues = self.lcu.getdata('/lol-gameflow/v1/session').json()['gameData']['queue']['id']
+                            while self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').json() == "ChampSelect":
+                                for _, floor in teammate_names.items():
+                                    smr = self.lcu.getdata(f"/lol-champ-select/v1/summoners/{floor}").json()
+
+                                    self.summoner_hero.emit(floor, smr["championId"])
+                                self.set_text.emit("选择英雄中", "#FF1493")
+
+                            #   team_info = get_team_info()
+                            self.summoner_show.emit()
                         elif state == "ReadyCheck":
                             if self.accept_flag:
                                 self.lcu.getdata('/lol-matchmaking/v1/ready-check/accept', 'post')
-                            self.set_text.emit("接受", "#FF1493")
+                                self.set_text.emit("已接受", "#FF1493")
+                            else:
+                                self.set_text.emit("已找到对局", "#FF1493")
                         elif state == "InProgress":
                             self.set_text.emit("游戏开始", "#FF1493")
-                         #   self.wait(1000)
                         elif state == "Matchmaking":
                             self.set_text.emit("寻找对局中", "#FF1493")
                         elif state == "Lobby":
                             self.set_text.emit("房间内", "#FF1493")
                         elif state == "None":
                             self.set_text.emit("大厅中", "#FF1493")
+                        elif state == "EndOfGame":
+                            self.set_text.emit("结算界面内", "#FF1493")
+                        Sleep(100)
+                        # 不加延迟可能会卡
+                else:
+                    self.set_text.emit("等待客户端开启", "#FF1493")
+                    Sleep(400)
+                    self.lcu.reset()
             except requests.exceptions.ConnectionError:
-                self.set_text.emit("等待客户端开启", "#FF1493")
-                self.lcu.resetport()  # 重置端口密码
+                self.set_text.emit("客户端关闭中", "#FF1493")
+                Sleep(400)
+                self.lcu.reset()
 
+            '''     
             except Exception as e:
                 self.set_text.emit(f'未知错误:{e}', "#FF1493")
                 traceback.print_exc()
                 print("错误--------------:", e)
+            '''
 
     def get_team_information(self):
         """
         :return:
+        cellId 选择英雄的id
+        floor
         """
-        my_info = {}
-        team_info = {}
-        info = self.lcu.getdata('/lol-champ-select/v1/session').json()
-        for _ in info.get("myTeam", {}):
-            if str(_["summonerId"]) == self.my_summoner_id:
-                my_info = {
-                    'cellId': _["cellId"],
-                    'floor': _["cellId"] if _["cellId"] < 4 else _["cellId"] - 5,  # int
-                    'lane': 'support' if _["cellId"] == 'utility' else _['assignedPosition']
+        cellid = ''
+        names = {}
+        for i in range(10):
+            res = self.lcu.getdata(f'/lol-champ-select/v1/summoners/{i}').json()
+            if res["summonerId"] > 0:
+                if str(res["summonerId"]) == self.my_summoner_id:
+                    cellid = res["cellId"]
+                else:
+                    names[self.lcu.getdata(f'/lol-summoner/v1/summoners/{res["summonerId"]}').json()[
+                        "displayName"]] = i
 
-                }
-            else:
-                team_info[_["cellId"]] = {
-                    "name": self.lcu.getdata("/lol-summoner/v1/summoners/" + str(_["summonerId"])).json()["displayName"],
-                    'floor': _["cellId"] if _["cellId"] < 4 else _["cellId"] - 5,  # int
-                    #  "summonerId": info["summonerId"],
-                }
-        return my_info, team_info
+        return cellid, names
 
     def team_se(self, names, daqu, chat_id):
         info = self.find.get_info(names, daqu)
+        print(info)
         for i in info:
             if info[i]:
                 self.lcu.getdata(
@@ -285,15 +236,125 @@ class LcuThread(QThread):
                     "type": "ban"  # String,
                 })
 
-    def random_mode(self):
-        team_info = self.lcu.getdata('/lol-champ-select/v1/session').json()
-        if 'actions' not in team_info:
-            return None
-        return {_['cellId']: _['championId'] for _ in team_info['myTeam']}
+    def set_summoner_info(self, summoner_info):
+        floor, info = summoner_info.result()
+        if info == -1:
+            pass
+        else:
+            self.summoner_info.emit(floor, info)
 
-    def pick_mode(self):
-        team_info = self.lcu.getdata('/lol-champ-select/v1/session').json()
-        if 'actions' not in team_info:
-            return None
-        action = team_info['actions'][-1]
-        return {_: 0 if action[_]['type'] != 'pick' else action[_]['championId'] for _ in range(len(action))}
+    async def get_summoner(self, floor, name, region):
+        cookie = "pgv_pvid=7859335832; ts_uid=5841229940; pkey=000163DB8E07007074DC47AE31CB4DAFA65835CDF0203540CB42C8CB7A053CF8605B4D10BA41264A793637B456AEBF08B0DD05FCD94E26D8AF2A403968D354755640373E8B0460125F2156DF0C37D5124225CEBF7F60A2B38F4BFD3FECDA9FB260DA23C9A17377F46D8208A833B94A509D9BDC76B85F9B90; tgp_biz_ticket=0100000000000000008F39AD5F0C9C5A7DF3663B02C7C2190F0EC18CF5D21956F23818C1C22CAD8F9BEE92E275B4ECFB4E6374ACCF8BA2EBBC927E09F0F618134269ACE5C74EA1772B; region=CN; puin=1332575979; pt2gguin=o01332575979; uin=o01332575979; tgp_id=70602779; geoid=45; lcid=2052; tgp_env=online; tgp_user_type=0; colorMode=1; ssr=0; colorMode=1; BGTheme=[object Object]; pgv_info=ssid=s1615488195; tgp_ticket=7DE2F9A5C526CEFBA281F78CA6EA40FFE5CEA84FA5403FE5EB623371178801EF52F34176C32F85B43A589497EA4384EF272F83CB76178E417D9042A3D15CA7D7981CFB059177DFFFB94D22C69B2822E419E1F62D1405AC01D581B54996FD4A55BF5A9D8D0A3FEDFF3ECF244F646E17A08EE54A9BA60C8E07B1015D28472704ED; ts_last=www.wegame.com.cn/helper/lol/search/index.html"
+        headers = {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Referer': 'https://www.wegame.com.cn/helper/lol/record/profile.html',
+            'Cookie': cookie
+        }
+        region_information = [
+            [1, '艾欧尼亚', "HN1"],
+            [15, "暗影岛", "HN11"]
+        ]
+
+        openid = ''
+        summoner_info = {}
+
+        for i in region_information:
+            if region in i:
+                region = i
+                break
+        if region not in region_information:
+            raise Exception(f"大区不存在:{region}")
+        else:
+            region = region[0]
+        # 重置大区
+        res = ''
+        while "players" not in res:
+            async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=64, ssl=False)) as session:
+                async with await session.post(
+                        "https://www.wegame.com.cn/api/v1/wegame.pallas.game.LolBattle/SearchPlayer",
+                        headers=headers,
+                        data=json.dumps({
+                            "nickname": name,
+                            "from_src": "lol_helper"
+                        })) as resp:
+                    res = eval(await resp.text())
+        for i in list(res["players"]):
+            if i["area"] == region:
+                openid = i["openid"]
+                break
+        # 获取openid
+        summoner_info['near_record'] = {}
+        summoner_info['record_count'] = {
+            'lost': 0,
+            'wins': 0
+        }
+        BattleReport = {}
+        while "battle_count" not in BattleReport:
+            async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=64, ssl=False)) as session:
+                async with await session.post(
+                        "https://www.wegame.com.cn/api/v1/wegame.pallas.game.LolBattle/GetBattleReport",
+                        headers=headers,
+                        data=json.dumps({
+                            "account_type": 2,
+                            "area": region,
+                            "from_src": "lol_helper",
+                            "id": openid,
+                        })) as resp:
+                    try:
+                        BattleReport = eval(await resp.text())
+                    except NameError:
+                        print(name, '隐藏')
+                        return -1, -1
+                # 用异常判断是否隐藏生涯
+        summoner_info['battle_count'] = BattleReport['battle_count']
+        summoner_info['season_list'] = BattleReport['season_list']
+        Champion = {}
+        while 'champion_list' not in Champion:
+            async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=64, ssl=False)) as session:
+                async with await session.post(
+                        "https://www.wegame.com.cn/api/v1/wegame.pallas.game.LolBattle/GetChampion",
+                        headers=headers,
+                        data=json.dumps({
+                            "account_type": 2,
+                            "area": region,
+                            "from_src": "lol_helper",
+                            "id": openid
+                        })) as resp:
+                    Champion = eval(await resp.text())
+        summoner_info['champion_list'] = {k['champion_id']: {"total": k["total"], "wins": k["wins"]} for k in
+                                          Champion["champion_list"]}
+        for _ in [0, 10, 20]:
+            BattleList = {}
+            while 'battles' not in BattleList:
+                async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=64, ssl=False)) as session:
+                    async with await session.post(
+                            "https://www.wegame.com.cn/api/v1/wegame.pallas.game.LolBattle/GetBattleList",
+                            headers=headers,
+                            data=json.dumps({
+                                "account_type": 2,
+                                "area": region,
+                                "count": 10,
+                                "filter": "",
+                                "from_src": "lol_helper",
+                                "id": openid,
+                                "offset": _
+                            })) as resp:
+                        BattleList = eval(await resp.text())
+            for i in BattleList['battles']:
+                if i['champion_id'] not in summoner_info['near_record']:
+                    summoner_info['near_record'][i['champion_id']] = {
+                        'wins': 0,
+                        'lost': 0
+                    }
+                if i['win'] == 'Fail':
+                    summoner_info['record_count']['lost'] += 1
+                    summoner_info['near_record'][i['champion_id']]['lost'] += 1
+                elif i['win'] == 'Win':
+                    summoner_info['record_count']['wins'] += 1
+                    summoner_info['near_record'][i['champion_id']]['wins'] += 1
+                elif i['win'] == 'LeaverFail':
+                    pass
+                else:
+                    raise Exception(f"i['win']:{i['win']},{name},{i}")
+
+        return floor, summoner_info

@@ -1,24 +1,24 @@
-import qdarktheme
-from PyQt5 import QtWidgets, uic
-import sys
+import ctypes
 
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.uic import loadUiType
+import wmi
 
-main_ui, _ = loadUiType(r'F:\lolapi\UI\FuWenUI.ui')
+command = 'WMIC PROCESS WHERE name="LeagueClientUx.exe" GET commandline'
 
-
-class MainGui(QMainWindow, main_ui):
-    def __init__(self):
-        QMainWindow.__init__(self)
-        self.setupUi(self)  # 构造界面
-    #  self.resize(1500, 1100)
+import ctypes, sys
+import os
 
 
-''
-app = QtWidgets.QApplication(sys.argv)
-app.setStyleSheet(qdarktheme.load_stylesheet("light"))
-window = MainGui()
-window.show()
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
-sys.exit(app.exec_())
+
+if is_admin():
+    os.system(command)
+ 
+    pass
+else:
+    if sys.version_info[0] == 3:
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
