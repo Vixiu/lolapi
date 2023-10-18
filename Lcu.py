@@ -17,7 +17,8 @@ from win32api import Sleep
 from lol_find import FindLolQP
 
 from urllib3 import disable_warnings
-from  requests import request
+from requests import request
+
 
 class LcuRequest:
     disable_warnings()
@@ -126,12 +127,13 @@ class LcuThread(QThread):
                                     break
                             environment = self.lcu.getdata("/riotclient/v1/crash-reporting/environment").json()[
                                 'environment']
-
+                            ##################
                             self.team_se(list(teammate_names.keys()), environment, chat_id)
                             ###############
                             loop = asyncio.new_event_loop()
                             asyncio.set_event_loop(loop)
                             task = []
+                            '''
                             for k, v in teammate_names.items():
                                 _ = loop.create_task(self.get_summoner(v, k, environment))
                                 _.add_done_callback(self.set_summoner_info)
@@ -139,17 +141,19 @@ class LcuThread(QThread):
                             if len(task) != 0:
                                 loop.run_until_complete(asyncio.wait(task))
                             ###############
-
-                            # mode_queues = self.lcu.getdata('/lol-gameflow/v1/session').json()['gameData']['queue']['id']
+                            '''
+                            # mode_queues = self.lcu.getdata('/lol-gameflow/v1/session').json()['gameData']['queue'][
+                            # 'id']
                             while self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').json() == "ChampSelect":
+                                '''
                                 for _, floor in teammate_names.items():
                                     smr = self.lcu.getdata(f"/lol-champ-select/v1/summoners/{floor}").json()
-
                                     self.summoner_hero.emit(floor, smr["championId"])
+                                '''
                                 self.set_text.emit("选择英雄中", "#FF1493")
 
                             #   team_info = get_team_info()
-                            self.summoner_show.emit()
+                        # self.summoner_show.emit()
                         elif state == "ReadyCheck":
                             if self.accept_flag:
                                 self.lcu.getdata('/lol-matchmaking/v1/ready-check/accept', 'post')
@@ -205,7 +209,7 @@ class LcuThread(QThread):
 
     def team_se(self, names, daqu, chat_id):
         info = self.find.get_info(names, daqu)
-        print(info)
+        print(str(info).replace("'", '').replace('{', '').replace('}', '}'))
         for i in info:
             if info[i]:
                 self.lcu.getdata(
@@ -244,7 +248,7 @@ class LcuThread(QThread):
             self.summoner_info.emit(floor, info)
 
     async def get_summoner(self, floor, name, region):
-        cookie = "pgv_pvid=7859335832; ts_uid=5841229940; pkey=000163DB8E07007074DC47AE31CB4DAFA65835CDF0203540CB42C8CB7A053CF8605B4D10BA41264A793637B456AEBF08B0DD05FCD94E26D8AF2A403968D354755640373E8B0460125F2156DF0C37D5124225CEBF7F60A2B38F4BFD3FECDA9FB260DA23C9A17377F46D8208A833B94A509D9BDC76B85F9B90; tgp_biz_ticket=0100000000000000008F39AD5F0C9C5A7DF3663B02C7C2190F0EC18CF5D21956F23818C1C22CAD8F9BEE92E275B4ECFB4E6374ACCF8BA2EBBC927E09F0F618134269ACE5C74EA1772B; region=CN; puin=1332575979; pt2gguin=o01332575979; uin=o01332575979; tgp_id=70602779; geoid=45; lcid=2052; tgp_env=online; tgp_user_type=0; colorMode=1; ssr=0; colorMode=1; BGTheme=[object Object]; pgv_info=ssid=s1615488195; tgp_ticket=7DE2F9A5C526CEFBA281F78CA6EA40FFE5CEA84FA5403FE5EB623371178801EF52F34176C32F85B43A589497EA4384EF272F83CB76178E417D9042A3D15CA7D7981CFB059177DFFFB94D22C69B2822E419E1F62D1405AC01D581B54996FD4A55BF5A9D8D0A3FEDFF3ECF244F646E17A08EE54A9BA60C8E07B1015D28472704ED; ts_last=www.wegame.com.cn/helper/lol/search/index.html"
+        cookie = "pgv_pvid=9826136483; ts_uid=2854892420; ts_last=www.wegame.com.cn/helper/lol/v2/index.html; puin=1332575979; pt2gguin=o01332575979; uin=o01332575979; tgp_id=70602779; geoid=104; lcid=2052; tgp_env=online; tgp_user_type=0; colorMode=1; pkey=0001652167B300703E7FAEE91103B4EFF24B2E01C3C57399D6D457EE0AB0543DB8307AFF9DC00DB48606825AC4231454DA168FE01632D40376E202C72069842232944A03633881D52E46846F6825EDE76E5C3BA70D306B513D5076DBDB87955252914ADDAA0B5551A9ACD22EABA579DF1FF2E09516A51151; tgp_ticket=97FE82BE7DCAE5299018262A5CDEDFDDB9039FD98702C128FC40D59D51BA3CE911CBF705E99D9850A32EBAF5CD18716C93CC523D8026B2615C55F832FA8A9A52D932BE9114ED911336F65C9B12B4426FCF4402AA2B29A793F3C1217E7B36854FEE61AC71AFB5E81CE16BC7AD2F86707259F8E3F72908AC5E2370B98D5DD7295D; tgp_biz_ticket=010000000000000000EC90F1440F1DB05BE2A09FDF4BA899AB1F5884C3182B90339D3E0DA89A80627DF524B047F1769FC9118BD1BB26AA2373422285AB89E6CCB9591436ED3E9129FA; colorMode=1; BGTheme=[object Object]; pgv_info=ssid=s2096498992"
         headers = {
             'Content-Type': 'application/json;charset=UTF-8',
             'Referer': 'https://www.wegame.com.cn/helper/lol/record/profile.html',

@@ -14,28 +14,22 @@ async def post_queue(queue_id):
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=10, ssl=False), trust_env=True) as session:
         async with  session.request(
                 "post",
-                f"https://127.0.0.1:{lcu.port}/lol-lobby/v2/lobby",
+
+
+                f"https://127.0.0.1:{lcu.port}/lol-loot/v1/recipes/CHEST_3330162_OPEN/craft?repeat=200",
 
                 headers={
                     "User-Agent": "LeagueOfLegendsClient",
                     'Authorization': 'Basic ' + b64encode(f'riot:{lcu.pw}'.encode()).decode(),
                 },
-                json={'queueId': queue_id},
+                json=["CHEST_3330162"],
 
         ) as resp:
             return await resp.text(), queue_id
 
 
 def result(res):
-    r, q = res.result()
-    print(r)
-    try:
-        r = json.loads(r)
-        if r['httpStatus'] != 500:
-            print('成功:', q, r)
-    except:
-        print(f"{q},")
-
+    print(1)
 
 lcu = LcuRequest()
 
@@ -47,7 +41,7 @@ task = []
 
 start = time.perf_counter()
 
-for i in range(10000):
+for i in range(10):
 
     _ = loop.create_task(post_queue(i))
     _.add_done_callback(result)

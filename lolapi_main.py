@@ -209,7 +209,6 @@ def start():
     completer.setFilterMode(Qt.MatchContains)
     ui_home.herolist.setCompleter(completer)
 
-
     ##########################################################
     effect = QGraphicsDropShadowEffect()
     effect.setBlurRadius(10)  # 范围
@@ -250,9 +249,7 @@ def start():
     '''
 
 
-
 if __name__ == '__main__':
-
     hero = {}
     user = {}
     app = QApplication(sys.argv)
