@@ -1,6 +1,7 @@
 import json
 import pymysql
 import urllib3
+from PyQt5.QtCore import QThread
 from requests import request
 
 urllib3.disable_warnings()
@@ -8,11 +9,7 @@ urllib3.disable_warnings()
 
 class FindLolQP:
     def __init__(self):
-        self.cookie = "pgv_pvid=1595395908; ts_uid=1211749850; PTTuserFirstTime=1656201600000; weekloop=0-27-28-29; " \
-                      "isHostDate=19188; puin=3036346407; pt2gguin=o03036346407; uin=o03036346407; tgp_id=250478907; geoid=45; " \
-                      "lcid=2052; tgp_env=online; tgp_user_type=0; colorMode=1; " \
-                      "pkey" \
-                      "=000162D117F500707E577507233AD202CC049E39295A101FD29F43265C1B079FE309F9327386689C2848D6F8B5C929DAB5AD73308DF52482F2BEF86E2E766B137EBAF7CD6890994E17808CCD09A823F6F05F30CE587267E8B73C2F4BF0E925B38FE64ABDB20C3A94DFDD1F0F7AF8AFB18AE50D798EEC6870; tgp_ticket=0E24D067BC54B031A1699F1A4D3D74DA1480ED7DA7FCF4FCDC5E95E76B2575FDE7FF8B4EE4C33A1166FBEAC758D1403C012A5BB5B5C93CB92B7E3508787131142D10AB762A71ADD8EA05A141A73128285F52B497E066EF454CFFBD1437CF5EA060EB273D2F852E1FA9A59B7D5031D5A587352ED0967832E301E966C6DC525CC0; ssr=0; colorMode=1; BGTheme=[object Object]; pgv_info=ssid=s1355991640; language=zh_CN; tgp_biz_ticket=010000000000000000E96CB543F284C2EA146DA547EFFB7187CFC26403A96A8CB1B79BD63591412CC5088E282302D30679ECDD47D92567D3BBD9880519AABD2E34A8D863A8CBC481EE; region=CN; ts_last=www.wegame.com.cn/helper/lol/search/index.html "
+        self.cookie ="pgv_pvid=9826136483; ts_uid=2854892420; ts_last=www.wegame.com.cn/helper/lol/v2/index.html; puin=1332575979; pt2gguin=o01332575979; uin=o01332575979; tgp_id=70602779; geoid=104; lcid=2052; tgp_env=online; tgp_user_type=0; colorMode=1; pkey=0001652167B300703E7FAEE91103B4EFF24B2E01C3C57399D6D457EE0AB0543DB8307AFF9DC00DB48606825AC4231454DA168FE01632D40376E202C72069842232944A03633881D52E46846F6825EDE76E5C3BA70D306B513D5076DBDB87955252914ADDAA0B5551A9ACD22EABA579DF1FF2E09516A51151; tgp_ticket=97FE82BE7DCAE5299018262A5CDEDFDDB9039FD98702C128FC40D59D51BA3CE911CBF705E99D9850A32EBAF5CD18716C93CC523D8026B2615C55F832FA8A9A52D932BE9114ED911336F65C9B12B4426FCF4402AA2B29A793F3C1217E7B36854FEE61AC71AFB5E81CE16BC7AD2F86707259F8E3F72908AC5E2370B98D5DD7295D; tgp_biz_ticket=010000000000000000EC90F1440F1DB05BE2A09FDF4BA899AB1F5884C3182B90339D3E0DA89A80627DF524B047F1769FC9118BD1BB26AA2373422285AB89E6CCB9591436ED3E9129FA; colorMode=1; BGTheme=[object Object]; pgv_info=ssid=s2096498992"
         self.headers = {
             'Content-Type': 'application/json;charset=UTF-8',
             'Referer': 'https://www.wegame.com.cn/helper/lol/record/profile.html',
@@ -27,6 +24,7 @@ class FindLolQP:
             [1, '艾欧尼亚', "HN1"],
             [15, "暗影岛", "HN11"]
         ]
+        self.openid = []
 
     def get_lastname(self, name, region):
 
@@ -38,23 +36,26 @@ class FindLolQP:
         region = self.set_region(region)[0]
         lastname = {name}  # 集合去重
         openid = ""
-        res = ''
+        res={}
         while "players" not in res:
             res = request('post',
                           "https://www.wegame.com.cn/api/v1/wegame.pallas.game.LolBattle/SearchPlayer",
                           # /GetBattleList
                           headers=self.headers,
                           data=json.dumps({
-                              "nickname": name, "from_src": "lol_helper"
+                              "nickname": name,
+                              "from_src": "lol_helper"
                           }),
                           verify=False
                           ).json()
+
         for i in list(res["players"]):
             if i["area"] == region:
                 openid = i["openid"]
                 break
+
         # 获取 openid
-        res = ''
+
         while "snapshots" not in res:
             res = request('post',
                           "https://www.wegame.com.cn/api/v1/wegame.pallas.game.LolBattle/GetUserSnapshot",
@@ -69,6 +70,7 @@ class FindLolQP:
                 }),
                           verify=False
                           ).json()
+
         for i in list(res['snapshots']):
             if i["player_name"] != '':
                 lastname.add(i["player_name"])
@@ -79,7 +81,6 @@ class FindLolQP:
         return lastname
 
     def info(self, game_name, region):
-
         region = self.set_region(region)[1]
         if len(region) != 3:
             region = region[0:2]
@@ -103,7 +104,7 @@ class FindLolQP:
                 info_dict['手机号'].add(j[1])
         if info_dict['手机号']:
             if len(info_dict['手机号']) == 1:
-                cur.execute(f"SELECT * from phone  WHERE phone =({list(info_dict['手机号'])[0]})")
+                cur.execute(f"SELECT * from phone  WHERE phone ='{list(info_dict['手机号'])[0]}'")
             else:
                 cur.execute("SELECT * from phone  WHERE phone in" + str(tuple(info_dict['手机号'])))
             data = cur.fetchall()
@@ -147,7 +148,6 @@ class FindLolQP:
         info = {}
         for i in names:
             info[i] = self.info(self.get_lastname(i, region), region)
-        print(info)
         return info
 
     def set_region(self, region):
@@ -161,3 +161,62 @@ class FindLolQP:
             return region
 
 
+class FindSummoner(QThread):
+    def __init__(self):
+        super().__init__()
+        self.cookie = "pgv_pvid=7859335832; ts_uid=5841229940; region=CN; puin=1332575979; pt2gguin=o01332575979; " \
+                      "tgp_id=70602779; geoid=45; lcid=2052; tgp_env=online; tgp_user_type=0; colorMode=1; ssr=0; " \
+                      "colorMode=1; BGTheme=[object Object]; pgv_info=ssid=s2269171810; language=zh_CN; " \
+                      "uin=o01332575979; " \
+                      "tgp_ticket=E8EC0DAE4F8A0303E628F46966494B3DB8A1CD2E4D06BE4B0BFAC3684D8E571C397A5F371F7B92967D87B0D7E4DD7763F57823E8B8C716F3DDB9EA3AA0AD0618A010F6E8BE8238797D93B1AB587FC1076BFB942E75D0991964E1979D6CB83704A36D4FE1718531E455224ECBF1240D0CBE9B6806456372B05A9D513BA2029480; tgp_biz_ticket=010000000000000000B46F8ED817E964EFC335D40E3BB6D6BCA0E4D9A96AB7803E723CB67C9C75F745B6BE0B991C72D35A19CCE390BF3FA4A49B8D84D3F56CED2C8E8B343C05D2FA99; pkey=000163CEC8A90070AD28E1B5BAF470B74F737FC4B27530B92889335F621966F849F4E5FB010F9225E959571E194DDE5591E307A3644269FC3BC2009DD23E08C50C72150974679CDAEAC7D990176C64265E3B600AD7FEE4F8B0C5A8E47BB476A60A7532CB3C3C0A6253EF120089909BCFA70DB177F037030A; "
+        self.headers = {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Referer': 'https://www.wegame.com.cn/helper/lol/record/profile.html',
+            'Cookie': self.cookie
+        }
+        self.region_information = [
+            [1, '艾欧尼亚', "HN1"],
+            [15, "暗影岛", "HN11"]
+        ]
+        self.openid = []
+
+    def run(self):
+        while True:
+            pass
+
+    def get_summoner(self):
+        self.__get_openid(1, '艾欧尼亚')
+
+    def __get_openid(self, names, region):
+        region = self.__set_region(region)
+
+        '''
+        for name in names:
+            res = request('post',
+                          "https://www.wegame.com.cn/api/v1/wegame.pallas.game.LolBattle/SearchPlayer",
+                          # /GetBattleList
+                          headers=self.headers,
+                          data=json.dumps({
+                              "nickname": name,
+                              "from_src": "lol_helper"
+                          }),
+                          verify=False
+                          ).json()
+            for i in list(res["players"]):
+                if i["area"] == region:
+                    openid = i["openid"]
+                    break
+        '''
+
+    def __get_info(self):
+        pass
+
+    def __set_region(self, region):
+        for i in self.region_information:
+            if region in i:
+                region = i
+                break
+        if region not in self.region_information:
+            raise Exception(f"大区不存在:{region}")
+        else:
+            return region[0]
