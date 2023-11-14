@@ -11,7 +11,7 @@ from gevent.resolver import blocking
 from FuWenUI import Ui_FuWen
 from Lcu import LcuRequest
 from PyQt5 import QtCore, QtGui, QtWidgets
-from Widget import RoundedWindow
+from RoundedWindow import RoundedWindow
 import data_rc
 from info_data import Info
 

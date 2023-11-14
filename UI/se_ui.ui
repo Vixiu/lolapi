@@ -1,34 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>form</class>
+ <widget class="QWidget" name="form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>865</width>
-    <height>661</height>
+    <width>639</width>
+    <height>446</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>100333</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="summoner_1" native="true">
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="summoner" native="true">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>290</y>
+     <x>100</x>
+     <y>60</y>
      <width>331</width>
-     <height>101</height>
+     <height>100</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <family>Arial Black</family>
-    </font>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>100</height>
+    </size>
    </property>
    <property name="styleSheet">
-    <string notr="true">QWidget#summoner_1{
+    <string notr="true">QWidget#summoner{
 background-color:rgb(248, 249, 250);
 border: 1px solid rgb(179, 179, 179) ;
 border-style:solid;
@@ -42,20 +52,23 @@ border-top-right-radius:10px;
       <x>0</x>
       <y>0</y>
       <width>321</width>
-      <height>101</height>
+      <height>102</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
      <property name="spacing">
       <number>0</number>
      </property>
-     <property name="bottomMargin">
+     <property name="rightMargin">
       <number>0</number>
      </property>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
         <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>6</number>
        </property>
        <item>
         <widget class="QLabel" name="label_2">
@@ -65,58 +78,15 @@ border-top-right-radius:10px;
           </font>
          </property>
          <property name="text">
-          <string>总:</string>
+          <string>总 览:</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="total_sessions">
-         <property name="font">
-          <font>
-           <pointsize>13</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>9999场</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="total_rate">
-         <property name="font">
-          <font>
-           <pointsize>13</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>100%</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="total_rank">
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>青铜IV34</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="recently">
          <property name="font">
           <font>
            <pointsize>15</pointsize>
@@ -126,56 +96,10 @@ border-top-right-radius:10px;
           <string>近20场:</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QLabel" name="recently_worl">
-         <property name="font">
-          <font>
-           <pointsize>13</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>99胜99负</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="recently_rate">
-         <property name="font">
-          <font>
-           <pointsize>13</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>100%</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton">
-         <property name="font">
-          <font>
-           <pointsize>13</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>详情</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <property name="spacing">
-        <number>0</number>
-       </property>
        <item>
         <widget class="QLabel" name="label_3">
          <property name="font">
@@ -184,7 +108,147 @@ border-top-right-radius:10px;
           </font>
          </property>
          <property name="text">
-          <string>英雄:</string>
+          <string>英 雄:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="total_number">
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>9999场</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="total_rate">
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>100%</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="recently_worl">
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>99胜99负</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="recently_rate">
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>100%</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="hero_number">
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>993场</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="hero_rate">
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>100%</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="rank">
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>青铜IV34</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -192,54 +256,192 @@ border-top-right-radius:10px;
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="hero_sessions">
-         <property name="font">
-          <font>
-           <pointsize>13</pointsize>
-          </font>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <property name="spacing">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string>9999场</string>
-         </property>
-        </widget>
+         <item>
+          <widget class="QPushButton" name="detail">
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">
+QPushButton {
+
+    color: #0081db;
+    border: 1px solid #dadce0;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+QPushButton:!window {
+    background: transparent;
+}
+QPushButton:flat,
+QPushButton:default {
+    border: none;
+    padding: 5px 9px;
+}
+QPushButton:default {
+    color: #f8f9fa;
+    background: #0081db;
+}
+QPushButton:hover,
+QPushButton:flat:hover {
+    background: rgba(181.000, 202.000, 244.000, 0.333);
+}
+QPushButton:pressed,
+QPushButton:flat:pressed,
+QPushButton:checked:pressed,
+QPushButton:flat:checked:pressed {
+    background: rgba(181.000, 202.000, 244.000, 0.933);
+}
+QPushButton:checked,
+QPushButton:flat:checked {
+    background: rgba(181.000, 202.000, 244.000, 0.733);
+}
+QPushButton:default:hover {
+    background: #3781ea;
+}
+QPushButton:default:pressed {
+    background: #6ca1f0;
+}
+QPushButton:default:disabled {
+    background: #dadce0;
+}</string>
+           </property>
+           <property name="text">
+            <string>详情</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QLabel" name="hero_rate">
-         <property name="font">
-          <font>
-           <pointsize>13</pointsize>
-          </font>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="spacing">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string>100%</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="session_value_5">
-         <property name="font">
-          <font>
-           <pointsize>15</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>近期</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="hero_worl">
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>99胜99负</string>
-         </property>
-        </widget>
+         <item>
+          <widget class="QLabel" name="session_value_5">
+           <property name="font">
+            <font>
+             <pointsize>13</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>近期:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="hero_worl">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>99胜99负</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="maximumSize">
+        <size>
+         <width>23</width>
+         <height>70</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+
+    color: #0081db;
+    border: 0px ;
+    border-radius: 4px;
+}
+
+QPushButton:!window {
+    background: transparent;
+}
+
+QPushButton:default {
+    color: #f8f9fa;
+    background: #0081db;
+}
+QPushButton:hover,
+QPushButton:flat:hover {
+    background: rgba(181.000, 202.000, 244.000, 0.333);
+}
+QPushButton:pressed,
+QPushButton:flat:pressed,
+QPushButton:checked:pressed,
+QPushButton:flat:checked:pressed {
+    background: rgba(181.000, 202.000, 244.000, 0.933);
+}
+QPushButton:checked,
+QPushButton:flat:checked {
+    background: rgba(181.000, 202.000, 244.000, 0.733);
+}
+QPushButton:default:hover {
+    background: #3781ea;
+}
+QPushButton:default:pressed {
+    background: #6ca1f0;
+}
+QPushButton:default:disabled {
+    background: #dadce0;
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>C:/Users/lnori/Desktop/left.png</normaloff>C:/Users/lnori/Desktop/left.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>23</width>
+         <height>70</height>
+        </size>
+       </property>
+       <property name="autoRepeatDelay">
+        <number>292</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Minimum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>1</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </widget>

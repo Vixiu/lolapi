@@ -1,35 +1,26 @@
-from Lcu import LcuRequest
+import time
 
-lcu = LcuRequest()
+from PyQt5.QtCore import QThread
 
-LobbyConfig = {
-    'customGameLobby': {
-        'configuration': {
-            'gameMode': 'CHERRY',
-            'gameMutator': '',
-            'gameServerRegion': '',
-            'mapId': 30,
-            'mutators': {'id': 1},
-            'spectatorPolicy': 'AllAllowed',
-            'teamSize': 10,
-            "maxLobbySize": 5,
-            "maxTeamSize": 5,
-        },
-        'lobbyName': 'PRACTICETOOL',
-        'lobbyPassword': ''
-    },
-    'isCustom': False,
-    "queueId": 1700,
 
-}
-'''
-res = lcu.getdata('/lol-lobby/v2/lobby/', 'post', data=LobbyConfig)
-bot = {"championId": 16, "botDifficulty": "MEDIUM", "teamId": "200"}
-res=lcu.getdata( '/lol-lobby/v1/lobby/custom/bots','POST', data=bot)
-#res = lcu.getdata('/lol-lobby/v2/lobby/', 'get')
-print(res.text)
-'''
-id=30
-res = lcu.getdata('/lol-store/v1/catalog', 'get')
+class LcuThread(QThread):
+    def __init__(self):
+        super().__init__()
+        print(1)
 
-print(res.text)
+    def run(self) -> None:
+        time.sleep(3)
+        print(2)
+
+    def st(self) -> None:
+        print(3)
+        self.start()
+
+
+qt = LcuThread()
+
+qt.st()
+print('end')
+while True:
+    pass
+qt.wait()

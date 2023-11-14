@@ -13,9 +13,8 @@ from pypinyin import lazy_pinyin
 import lolapiUI
 
 from Lcu import LcuRequest, LcuThread
-from Widget import RoundedWindow
-from info_data import Info
-from se_ui import Ui_Form
+from RoundedWindow import RoundedWindow
+from SummonerUI import Ui_form
 
 
 def add_text(text):
@@ -77,7 +76,7 @@ def load_user_data():
         lcu.getdata('/lol-game-data/assets/v1/profile-icons/' + str(user['profileIconId']) + '.jpg').content)))
 
 
-def set_summoner_info(floor, info):
+def set_summoner_info(data):
     summoner_floor = {
         0: summoner_1,
         1: summoner_2,
@@ -181,11 +180,11 @@ def set_summoner_rect():
     s1_x = int(rect[0] + 0.1725 * (rect[2] - rect[0]))
     s1_y = int(rect[1] + 0.1311 * (rect[3] - rect[1]))
     # print(s1_x, s1_y)
-    summoner_1.move(s1_x, s1_y)
-    summoner_2.move(s1_x, s1_y + width)
-    summoner_3.move(s1_x, s1_y + 2 * width)
-    summoner_4.move(s1_x, s1_y + 3 * width)
-    summoner_5.move(s1_x, s1_y + 4 * width)
+    summoner[1].move(s1_x, s1_y)
+    summoner[2].move(s1_x, s1_y + width)
+    summoner[3].move(s1_x, s1_y + 2 * width)
+    summoner[4].move(s1_x, s1_y + 3 * width)
+    summoner[5].move(s1_x, s1_y + 4 * width)
 
 
 def set_summoner_show():
@@ -252,11 +251,20 @@ def start():
 if __name__ == '__main__':
     hero = {}
     user = {}
+    summoner_ui = {
+        1: Ui_form(),
+        2: Ui_form(),
+        3: Ui_form(),
+        4: Ui_form(),
+        5: Ui_form(),
+    }
+    summoner_data = {
+
+    }
     app = QApplication(sys.argv)
     lcu = LcuRequest()
     qthread = LcuThread(lcu)
     ui_home = lolapiUI.Ui_Frame()
-    summoner = {}
     '''
     #UI美化,最后会用到
     Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
@@ -264,14 +272,7 @@ if __name__ == '__main__':
     '''
     main_window = RoundedWindow()
     ui_home.setupUi(main_window)
-
     #############
-
-    summoner_1 = Ui_Form()
-    summoner_2 = Ui_Form()
-    summoner_3 = Ui_Form()
-    summoner_4 = Ui_Form()
-    summoner_5 = Ui_Form()
 
     #############
     start()

@@ -9,6 +9,7 @@ Created on 2019年4月19日
 @file: FramelessDialog
 @description: 无边框圆角对话框
 """
+from PyQt5 import QtCore
 # import qdarktheme
 
 from PyQt5.QtCore import Qt, QSize, QTimer
@@ -21,6 +22,7 @@ class RoundedWindow(QWidget):
     def __init__(self):
         super(QWidget, self).__init__()
         self.mPos = ''
+
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 

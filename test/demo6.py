@@ -1,95 +1,48 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import sys
+from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QRect
+from PyQt5.QtWidgets import QApplication, QPushButton, QWidget, QVBoxLayout
 
-"""
-Created on 2019年4月19日
-@author: Irony
-@site: https://pyqt.site , https://github.com/PyQt5
-@email: 892768447@qq.com
-@file: FramelessDialog
-@description: 无边框圆角对话框
-"""
-from time import sleep
-
-import qdarktheme
-from PyQt5.QtGui import QPixmap
-
-from Widget import RoundedWindow
-
-try:
-    from PyQt5.QtCore import Qt, QSize, QTimer
-    from PyQt5.QtWidgets import QDialog, QVBoxLayout, QWidget, \
-        QGraphicsDropShadowEffect, QPushButton, QGridLayout, QSpacerItem, \
-        QSizePolicy, QApplication, QMainWindow
-except ImportError:
-    from PySide2.QtCore import Qt, QSize, QTimer
-    from PySide2.QtWidgets import QDialog, QVBoxLayout, QWidget, \
-        QGraphicsDropShadowEffect, QPushButton, QGridLayout, QSpacerItem, \
-        QSizePolicy, QApplication
-
-
-
-class Dialog(QWidget):
-
+class MainWindow(QWidget):
     def __init__(self):
-        super(QWidget, self).__init__()
-        self.setObjectName('Custom_Dialog')
-        self.resize(450, 600)
-        ui = Ui_FuWen()
-        wg = QWidget()
-        ui.setupUi(wg)
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        self.setGeometry(200, 200, 300, 200)
+
+        self.button = QPushButton('展开/收缩窗口', self)
+        self.button.clicked.connect(self.toggleWindow)
+
+        self.windowExpanded = False
+
         layout = QVBoxLayout()
+        layout.addWidget(self.button)
         self.setLayout(layout)
-        layout.addWidget(wg)
 
-        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setStyleSheet(qdarktheme.load_stylesheet("light"))
+    def toggleWindow(self):
+        startGeometry = self.geometry()
+        endGeometry = QRect()
 
-        # 添加阴影
-        effect = QGraphicsDropShadowEffect(self)
-        effect.setBlurRadius(5)  # 范围
-        effect.setOffset(0, 0)  # 横纵,偏移量
-        effect.setColor(Qt.black)  # 颜色
-        self.setGraphicsEffect(effect)
-        self.show()
+        if not self.windowExpanded:
+            endGeometry = QRect(startGeometry.x(), startGeometry.y(), startGeometry.width(), startGeometry.height() + 200)
+        else:
+            endGeometry = QRect(startGeometry.x(), startGeometry.y(), startGeometry.width(), startGeometry.height() - 200)
 
-    def initUi(self):
-        # 在widget中添加ui
-        layout = QGridLayout(self.widget)
-    #  layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum), 0, 0)
-    #  layout.addWidget(QPushButton('r', self, clicked=self.accept, objectName='closeButton'), 0, 1)
-    #   layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum,QSizePolicy.Expanding), 1, 0)
+        animation = QPropertyAnimation(self, b"geometry")
+        animation.setDuration(500)
+        animation.setEasingCurve(QEasingCurve.InOutQuart)
+        animation.setStartValue(startGeometry)
+        animation.setEndValue(endGeometry)
+        animation.start()
 
+        self.windowExpanded = not self.windowExpanded
 
-from FuWenUI import Ui_FuWen
+def main():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    import sys
-    import data_rc
-    app = QApplication(sys.argv)
-    main_window = RoundedWindow()
-    ui_home = Ui_FuWen()
-    ui_home.setupUi(main_window)
-    main_window.show()
-    import os
-
-    '''
-                 for root, dirs, files in os.walk(r'C:\Users\lnori\Desktop\test\tier-promotion-to-challenger'):
-                     ls = files
-
-                 for path in ls:
-
-                     self.ssss.emit(QPixmap(rf'C:\Users\lnori\Desktop\test\tier-promotion-to-challenger\{path}'))
-                     time.sleep(0.04)
-         '''
-
-
-
-
-    #
-
-
-    # ui_home.Gongao.append("<font color='#eb6213' size='4'>" + '9999' + "<font>")
-
-    sys.exit(app.exec_())
+    main()

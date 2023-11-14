@@ -1,20 +1,15 @@
-import multiprocessing
-import time
+import asyncio
 
 
-def func(msg):
-    return multiprocessing.current_process().name + '-' + msg
+async def main():
+    await asyncio.sleep(2)
+    print("Task completed")
 
 
-if __name__ == "__main__":
-    pool = multiprocessing.Pool(processes=4)  # 创建4个进程
-    results = []
-    for i in range(10):
-        msg = "hello %d" % (i)
-        results.append(pool.apply_async(func, (msg,)))
-    pool.close()  # 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用
-    #  pool.join()  # 等待进程池中的所有进程执行完毕
-    print("Sub-process(es) done.")
+if __name__ == '__main__':
+    asyncio.create_task(main())
 
-    for res in results:
-        print(res.get(), type(res))
+    # 下面的代码会继续执行而不会等待main()任务完成
+    print("Continuing to other operations...")
+
+    # 可以继续进行其他操作，而不会被main()任务阻塞
