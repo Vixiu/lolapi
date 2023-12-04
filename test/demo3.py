@@ -1,10 +1,7 @@
-import psutil
+
+floor =1
 
 
-def CheckProcess():
-    process = psutil.pids()
-    for pid in process:
-        if psutil.Process(pid).name() == 'LeagueClient.exe':
-            return pid
-    else:
-        return None
+floor = floor if floor < 5 else floor - 5
+
+print(floor)

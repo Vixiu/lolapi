@@ -1,15 +1,20 @@
-import asyncio
+import sys
+import time
 
+from PyQt5.QtWidgets import QApplication
+from win32api import Sleep
 
-async def main():
-    await asyncio.sleep(2)
-    print("Task completed")
+import lolapiUI
+from Summoner import SummonerUIRect
+from RoundedWindow import RoundedWindow
+from UI.se import Ui_form
 
+app = QApplication(sys.argv)
+summoner_rect = SummonerUIRect()
+ui = summoner_rect.bind_ui(1)
 
-if __name__ == '__main__':
-    asyncio.create_task(main())
+ui.show()
 
-    # 下面的代码会继续执行而不会等待main()任务完成
-    print("Continuing to other operations...")
-
-    # 可以继续进行其他操作，而不会被main()任务阻塞
+summoner_rect.start()
+print(time.ctime())
+app.exec_()  # 开始

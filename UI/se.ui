@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>639</width>
-    <height>446</height>
+    <width>771</width>
+    <height>100</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -25,15 +25,21 @@
   <widget class="QWidget" name="summoner" native="true">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>240</y>
-     <width>351</width>
+     <x>0</x>
+     <y>0</y>
+     <width>481</width>
      <height>100</height>
     </rect>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>100</height>
+    </size>
+   </property>
    <property name="maximumSize">
     <size>
-     <width>400</width>
+     <width>59999</width>
      <height>100</height>
     </size>
    </property>
@@ -51,7 +57,7 @@ border-top-right-radius:10px;
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>351</width>
+      <width>451</width>
       <height>101</height>
      </rect>
     </property>
@@ -64,6 +70,9 @@ border-top-right-radius:10px;
      </property>
      <property name="topMargin">
       <number>10</number>
+     </property>
+     <property name="rightMargin">
+      <number>5</number>
      </property>
      <property name="bottomMargin">
       <number>8</number>
@@ -129,7 +138,7 @@ border-top-right-radius:10px;
               </font>
              </property>
              <property name="text">
-              <string>10练呗的</string>
+              <string>1123</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -143,9 +152,12 @@ border-top-right-radius:10px;
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>10</width>
              <height>20</height>
             </size>
            </property>
@@ -219,7 +231,7 @@ QPushButton:default:disabled {
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="spacing">
-          <number>8</number>
+          <number>0</number>
          </property>
          <item>
           <widget class="QLabel" name="label_3">
@@ -232,10 +244,22 @@ QPushButton:default:disabled {
             </font>
            </property>
            <property name="text">
-            <string>英 雄:</string>
+            <string>成就点:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="hero_proficiency">
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>99999999</string>
            </property>
           </widget>
          </item>
@@ -248,7 +272,7 @@ QPushButton:default:disabled {
             <widget class="QLabel" name="label_2">
              <property name="maximumSize">
               <size>
-               <width>25</width>
+               <width>232</width>
                <height>16777215</height>
               </size>
              </property>
@@ -258,7 +282,7 @@ QPushButton:default:disabled {
               </font>
              </property>
              <property name="text">
-              <string>No.</string>
+              <string> No.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -273,38 +297,7 @@ QPushButton:default:disabled {
               </font>
              </property>
              <property name="text">
-              <string>133</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="label">
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>熟练度.</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="hero_proficiency">
-             <property name="font">
-              <font>
-               <pointsize>14</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>123542</string>
+              <string>999</string>
              </property>
             </widget>
            </item>
@@ -355,7 +348,7 @@ QPushButton:default:disabled {
             </font>
            </property>
            <property name="text">
-            <string>99胜99负</string>
+            <string>无记录</string>
            </property>
           </widget>
          </item>
@@ -366,7 +359,7 @@ QPushButton:default:disabled {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>20</width>
              <height>20</height>
             </size>
            </property>
@@ -468,9 +461,12 @@ QPushButton:default:disabled {
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Minimum</enum>
+       </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>0</width>
          <height>20</height>
         </size>
        </property>

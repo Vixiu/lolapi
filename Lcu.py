@@ -3,22 +3,20 @@ from base64 import b64encode
 
 import json
 
-import time
+from time import sleep
 import traceback
-
+from win32api import Sleep
 import aiohttp
 import requests
 
-import win32com.client
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread, QMutex, QWaitCondition
 from psutil import process_iter
-from win32api import Sleep
 
 from urllib3 import disable_warnings
 from requests import request
 
-#from GetSummonerMatch import GetSummonerMatch
+from Summoner import SummonerUIRect, GetSummonerMatch
 
 
 class LcuRequest:
@@ -27,11 +25,11 @@ class LcuRequest:
     def __init__(self):
         self.is_process = False
         self.lcu_args = self.get_lcu_args()
-        self.port, self.pw = self.lcu_args.get('app-port', '0000'), self.lcu_args.get("remoting-auth-token", 'None')
+        self.port, self.token = self.lcu_args.get('app-port', '0000'), self.lcu_args.get("remoting-auth-token", 'None')
         self.url = 'https://127.0.0.1:' + self.port
         self.headers = {
             "User-Agent": "LeagueOfLegendsClient",
-            'Authorization': 'Basic ' + b64encode(('riot' + ':' + self.pw).encode()).decode(),
+            'Authorization': 'Basic ' + b64encode(('riot' + ':' + self.token).encode()).decode(),
 
         }
 
@@ -58,7 +56,7 @@ class LcuRequest:
 
     def find_lcu_cmdline(self):
         for prs in process_iter():
-            if prs.name() in ['LeagueClientUx', 'LeagueClientUx.exe']:
+            if prs.name() in ['LeagueClient', 'LeagueClientUx.exe']:
                 self.is_process = True
                 return prs.cmdline()
         self.is_process = False
@@ -73,10 +71,11 @@ class LcuThread(QThread):
     add_text = QtCore.pyqtSignal(str)  # 增加文本
     load_user_data = QtCore.pyqtSignal()  # 读取信息
     window_enable = QtCore.pyqtSignal(bool)  # 窗口是否可点击
-    summoner_info = QtCore.pyqtSignal(dict)
-    summoner_hero = QtCore.pyqtSignal(int, int)
-    summoner_rect = QtCore.pyqtSignal()  # 设置信息位置
-    summoner_show = QtCore.pyqtSignal()
+    ######################################
+    summoner_init = QtCore.pyqtSignal(dict)  # 初始化
+    summoner_info = QtCore.pyqtSignal(str, dict)  # 设置信息
+    summoner_hero = QtCore.pyqtSignal(str, int)  # 设置英雄 puuid, 英雄id
+    summoner_hide = QtCore.pyqtSignal()
 
     def __init__(self, lcu_request: LcuRequest):
         super().__init__()
@@ -84,26 +83,39 @@ class LcuThread(QThread):
         self.stop = True
         self.lcu = lcu_request
         self.hero_choose = -1
-        self.my_summoner_id = ''
+        self.my_summoner_id = -1
         self.get_summoner_match = GetSummonerMatch()
         self.get_summoner_match.summoner_data.connect(self.set_summoner_info)
+        self.show_my_summoner = True
 
     def run(self):
         while self.stop:
             try:
                 if self.lcu.is_process:
-                    print(self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').text)
-                    self.my_summoner_id = str(
-                        self.lcu.getdata('/lol-summoner/v1/current-summoner').json()['summonerId'])
+                    self.my_summoner_id = self.lcu.getdata('/lol-summoner/v1/current-summoner').json()['summonerId']
                     self.add_text.emit("客户端已开启!")
                     self.load_user_data.emit()
-                    self.summoner_rect.emit()
+                    '''
+                    lst = [
+                        f907231c - 55cc - 52b2 - 9782 - 27ae453e119f
+                        4fa8a785 - e3c4 - 5b1b - 96a2 - f5f882e8d451
+                        82157e98 - b6a2 - 5d82 - 8458 - d14b24bafd83
+                        f0b867f7 - 2a91 - 5250 - 9874 - f6d513e5dbb5
+                        15b6a296 - b1b4 - 57c4 - 87da - 1824379dde37
+
+                    ]
+                    '''
+                    #     self.summoner_init.emit({k: v + 1 for v, k in enumerate(lst)})
+
+                    #   self.get_summoner_match.get_match(lst, self.lcu.port, self.lcu.headers)
+                    # 客户端启动后的初始化
                     while self.stop:
+
                         state = self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').json()
                         if state == "ChampSelect":
                             self.set_text.emit("选择英雄中", "#FF1493")
-                            my_cellid, teammate_names = self.get_team_information()
-                            self.lcu.getdata(f'/lol-champ-select/v1/session/actions/{my_cellid}', 'PATCH', {}, {
+                            my_cellId, ppuid_floor = self.get_team_information()
+                            self.lcu.getdata(f'/lol-champ-select/v1/session/actions/{my_cellId}', 'PATCH', {}, {
                                 "championId": self.hero_choose,
                                 "completed": False
                             })
@@ -120,16 +132,19 @@ class LcuThread(QThread):
 
                             # mode_queues = self.lcu.getdata('/lol-gameflow/v1/session').json()['gameData']['queue'][
                             # 'id']
-                            while self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').json() == "ChampSelect":
-                                '''
-                                for _, floor in teammate_names.items():
-                                    smr = self.lcu.getdata(f"/lol-champ-select/v1/summoners/{floor}").json()
-                                    self.summoner_hero.emit(floor, smr["championId"])
-                                '''
-                                self.set_text.emit("选择英雄中", "#FF1493")
+                            self.summoner_init.emit(ppuid_floor)
+                            self.get_summoner_match.get_match(ppuid_floor.keys(), self.lcu.port, self.lcu.headers)
 
-                            #   team_info = get_team_info()
-                        # self.summoner_show.emit()
+                            # 进入房间前的初始化
+                            if self.show_my_summoner:
+                                my_cellId = -999
+                            while self.lcu.getdata('/lol-gameflow/v1/gameflow-phase').json() == "ChampSelect":
+                                session = self.lcu.getdata('/lol-champ-select/v1/session').json()
+                                for team in session.get('myTeam', []):
+                                    if team['championId'] > 0 and team['puuid'] != '' and team['cellId'] != my_cellId:
+                                        self.summoner_hero.emit(team['puuid'], team['championId'])
+                                self.set_text.emit("选择英雄中", "#FF1493")
+                            self.summoner_hide.emit()
                         elif state == "ReadyCheck":
                             if self.accept_flag:
                                 self.lcu.getdata('/lol-matchmaking/v1/ready-check/accept', 'post')
@@ -152,8 +167,8 @@ class LcuThread(QThread):
                     self.set_text.emit("等待客户端开启", "#FF1493")
                     Sleep(400)
                     self.lcu.reset()
-            except requests.exceptions.ConnectionError:
-                self.set_text.emit("客户端关闭中", "#FF1493")
+            except:
+                self.set_text.emit("等待客户端", "#FF1493")
                 Sleep(400)
                 self.lcu.reset()
 
@@ -167,21 +182,21 @@ class LcuThread(QThread):
     def get_team_information(self):
         """
         :return:
-        cellId 选择英雄的id
-        floor
+        我的楼层， { 名字:楼层}
         """
-        cellid = ''
-        names = {}
-        for i in range(10):
-            res = self.lcu.getdata(f'/lol-champ-select/v1/summoners/{i}').json()
-            if res["summonerId"] > 0:
-                if str(res["summonerId"]) == self.my_summoner_id:
-                    cellid = res["cellId"]
-                else:
-                    names[self.lcu.getdata(f'/lol-summoner/v1/summoners/{res["summonerId"]}').json()[
-                        "displayName"]] = i
-
-        return cellid, names
+        my_cellId = None
+        ppuid_floor = {}
+        session = self.lcu.getdata('/lol-champ-select/v1/session').json()
+        my_team = session['myTeam']
+        for team in my_team:
+            if team['summonerId'] == self.my_summoner_id:
+                my_cellId = team['cellId']
+                if self.show_my_summoner:
+                    ppuid_floor[team['puuid']] = team['cellId'] - 5 if team['cellId'] >= 5 else team['cellId']
+            elif team['summonerId'] != 0:
+                ppuid_floor[team['puuid']] = team['cellId'] - 5 if team['cellId'] >= 5 else team['cellId']
+        print(ppuid_floor)
+        return my_cellId, ppuid_floor
 
     def team_se(self, names, daqu, chat_id):
         info = self.find.get_info(names, daqu)
@@ -216,5 +231,5 @@ class LcuThread(QThread):
                     "type": "ban"  # String,
                 })
 
-    def set_summoner_info(self, data):
-        self.summoner_info.emit(data)
+    def set_summoner_info(self, puuid, data):
+        self.summoner_info.emit(puuid, data)
