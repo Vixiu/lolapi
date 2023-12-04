@@ -1,82 +1,37 @@
-import asyncio
-
-import aiohttp
-from PyQt5.QtCore import Qt, QThread
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QPainterPath
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout
-from FuWenUI import Ui_FuWen
-from Lcu import LcuRequest
-from PyQt5 import QtCore, QtGui, QtWidgets
-from requests import request
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget
 
 
-class FuWen(QMainWindow, Ui_FuWen):
-    def __init__(self, lcu: LcuRequest):
-        super(FuWen, self).__init__()
+class Example(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
-        self.rune_data = {}
-        # 符文数据 图标,id
-        self.hero_data = {}
-        # 英雄数据 符文,位置, 等
-        self.zh_ch = {
-            'top': '上单',
-            'mid': '中单',
-            'jungle': '打野',
-            'support': '辅助',
-            'bottom': '下路',
-        }
+        self.initUI()
 
-        self.vbox = QVBoxLayout()
-        self.vbox.setContentsMargins(0, 0, 0, 0)
-        self.fuwenlist.setMaximumSize(430, 950)  # ---
-        self.fuwenlist.setLayout(self.vbox)
-        self.vbox.setAlignment(Qt.AlignTop)
+    def initUI(self):
+        # 创建一个主窗口
+        self.setWindowTitle('自动调整主窗口大小')
 
-        self.show()
-        self.switch_location.activated.connect(lambda: self.switch(self.switch_location.currentData()))
+        # 创建一个包含标签的部件
+        widget = QWidget(self)
+        layout = QVBoxLayout(widget)
 
-        self.queues_info = {
-            '430': '420',
-            '420': '420',
-            '440': '440',
-            '450': '450',
-            '1400': '420',
-            '1200': '420',
-            '1300': '420',
-        }
+        label = QLabel('一些文本内容', self)
+        layout.addWidget(label)
 
-    #  self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-    def initialize_hero_data(self):
-        #  lane = ['top', 'mid', 'jungle', 'support', 'bottom']
-        #  tier = ['challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron']
+        # 设置主窗口的中央部件
+        self.setCentralWidget(widget)
 
-        return {
-            'rune_data': 'None',
-            'best_lane': [],
-            'rank': 'None',
-            'ranging': {
-                '450': {},
-                '420': {},
-                '440': {}
-            }
-        }
+        # 调整主窗口大小以适应内容
+        self.adjustSize()
 
-    def test(self, perk, title):
-        perk = eval(perk)
-        res = self.lcu.getdata('/lol-perks/v1/currentpage').json()
-        res = res['id']
-        self.lcu.getdata(f'/lol-perks/v1/pages/{res}', 'DELETE')
-        res = self.lcu.getdata('/lol-perks/v1/pages', 'post', None, {
-            "autoModifiedSelections": [],
-            "current": True,
-            "isActive": True,
-            "isDeletable": True,
-            "isEditable": True,
-            "isValid": True,
-            "lastModified": 0,
-            "name": title,
-            "order": 0,
-            "primaryStyleId": self.rune_data[str(perk[1])]['id'],
-            "selectedPerkIds": perk,
-            "subStyleId": self.rune_data[str(perk[4])]['id']
-        })
+
+def main():
+    app = QApplication(sys.argv)
+    ex = Example()
+    ex.show()
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

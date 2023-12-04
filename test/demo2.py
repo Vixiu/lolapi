@@ -1,24 +1,14 @@
-import ctypes
+import sys
 
-import wmi
+from PyQt5.QtWidgets import QApplication
 
-command = 'WMIC PROCESS WHERE name="LeagueClientUx.exe" GET commandline'
+from GetSummonerMatch import SummonerUIRect
 
-import ctypes, sys
-import os
+app = QApplication(sys.argv)
 
-
-def is_admin():
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
-        return False
+s = SummonerUIRect()
+w = s.bind_ui(2)
 
 
-if is_admin():
-    os.system(command)
- 
-    pass
-else:
-    if sys.version_info[0] == 3:
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+
+app.exec_()  # 开始

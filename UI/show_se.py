@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'se_ui.ui'
+# Form implementation generated from reading ui file 'show_se.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -9,38 +9,26 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow, QWidget
-
-from Widget import RoundedWindow
 
 
-class Ui_Form(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setupUi(self)
-        self.setWindowFlags(
-            QtCore.Qt.SplashScreen | QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.WindowTransparentForInput)
-        self.setWindowOpacity(0.6)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        # Form.resize(865, 661)
-        self.summoner_1 = QtWidgets.QWidget(Form)
-        self.summoner_1.setGeometry(QtCore.QRect(0, 0, 331, 101))
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(675, 300)
+        self.summoner = QtWidgets.QWidget(Dialog)
+        self.summoner.setGeometry(QtCore.QRect(90, 60, 331, 101))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
-        self.summoner_1.setFont(font)
-        self.summoner_1.setStyleSheet("QWidget#summoner_1{\n"
-                                      "background-color:rgb(248, 249, 250);\n"
-                                      "border: 1px solid rgb(179, 179, 179) ;\n"
-                                      "border-style:solid;\n"
-                                      "border-bottom-right-radius:10px;\n"
-                                      "border-top-right-radius:10px;\n"
-                                      "}")
-        self.summoner_1.setObjectName("summoner_1")
-        self.layoutWidget = QtWidgets.QWidget(self.summoner_1)
+        self.summoner.setFont(font)
+        self.summoner.setStyleSheet("QWidget#summoner_1{\n"
+"background-color:rgb(248, 249, 250);\n"
+"border: 1px solid rgb(179, 179, 179) ;\n"
+"border-style:solid;\n"
+"border-bottom-right-radius:10px;\n"
+"border-top-right-radius:10px;\n"
+"}")
+        self.summoner.setObjectName("summoner")
+        self.layoutWidget = QtWidgets.QWidget(self.summoner)
         self.layoutWidget.setGeometry(QtCore.QRect(0, 0, 321, 101))
         self.layoutWidget.setObjectName("layoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget)
@@ -142,22 +130,22 @@ class Ui_Form(QWidget):
         self.horizontalLayout_2.addWidget(self.hero_worl)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
-        self.label_2.setText(_translate("Form", "总:"))
-        self.total_sessions.setText(_translate("Form", "9999场"))
-        self.total_rate.setText(_translate("Form", "100%"))
-        self.total_rank.setText(_translate("Form", "青铜IV34"))
-        self.label_4.setText(_translate("Form", "近20场:"))
-        self.recently_worl.setText(_translate("Form", "99胜99负"))
-        self.recently_rate.setText(_translate("Form", "100%"))
-        self.pushButton.setText(_translate("Form", "详情"))
-        self.label_3.setText(_translate("Form", "英雄:"))
-        self.hero_sessions.setText(_translate("Form", "9999场"))
-        self.hero_rate.setText(_translate("Form", "100%"))
-        self.session_value_5.setText(_translate("Form", "近期"))
-        self.hero_worl.setText(_translate("Form", "99胜99负"))
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.label_2.setText(_translate("Dialog", "总:"))
+        self.total_sessions.setText(_translate("Dialog", "9999场"))
+        self.total_rate.setText(_translate("Dialog", "100%"))
+        self.total_rank.setText(_translate("Dialog", "青铜IV34"))
+        self.label_4.setText(_translate("Dialog", "近20场:"))
+        self.recently_worl.setText(_translate("Dialog", "99胜99负"))
+        self.recently_rate.setText(_translate("Dialog", "100%"))
+        self.pushButton.setText(_translate("Dialog", "详情"))
+        self.label_3.setText(_translate("Dialog", "英雄:"))
+        self.hero_sessions.setText(_translate("Dialog", "9999场"))
+        self.hero_rate.setText(_translate("Dialog", "100%"))
+        self.session_value_5.setText(_translate("Dialog", "近期"))
+        self.hero_worl.setText(_translate("Dialog", "99胜99负"))

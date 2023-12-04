@@ -1,9 +1,9 @@
 import json
 import random
 import sys
+import time
 from datetime import date, timedelta
 
-import win32gui
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QImage
@@ -11,11 +11,12 @@ from PyQt5.QtWidgets import QApplication, QCompleter, QGraphicsDropShadowEffect
 from pypinyin import lazy_pinyin
 
 import lolapiUI
+from GameInfo import Info
 
 from Lcu import LcuRequest, LcuThread
-from Widget import RoundedWindow
-from info_data import Info
-from se_ui import Ui_Form
+from RoundedWindow import RoundedWindow
+from Summoner import SummonerUIRect
+from SummonerUI import Ui_form
 
 
 def add_text(text):
@@ -70,132 +71,57 @@ def grab_hero():
 
 def load_user_data():
     global user
-    print(1)
     user = lcu.getdata('/lol-summoner/v1/current-summoner').json()
     ui_home.name.setText(user['internalName'])
     ui_home.profile.setPixmap(QPixmap(QImage.fromData(
         lcu.getdata('/lol-game-data/assets/v1/profile-icons/' + str(user['profileIconId']) + '.jpg').content)))
 
 
-def set_summoner_info(floor, info):
-    summoner_floor = {
-        0: summoner_1,
-        1: summoner_2,
-        2: summoner_3,
-        3: summoner_4,
-        4: summoner_5,
-        5: summoner_1,
-        6: summoner_2,
-        7: summoner_3,
-        8: summoner_4,
-        9: summoner_5
-
-    }
-    tier = {
-        0: "王者",
-        1: "钻石",
-        2: "铂金",
-        3: "黄金",
-        4: "白银",
-        5: "青铜",
-        6: "大师",
-        7: "宗师",
-        8: "黑铁"
-    }
-    queue = {
-        0: "I",
-        1: "II",
-        2: "III",
-        3: "IV",
-        4: "V",
-
-    }
-    global summoner
-    summoner_floor[floor].show()
-    summoner_floor[floor].total_sessions.setText(f'{info["battle_count"]["total_games"]}场')
-    summoner_floor[floor].total_rate.setText(
-        f'{int(info["battle_count"]["total_wins"] / info["battle_count"]["total_games"] * 100)}%')
-    if info["season_list"][0]["tier"] == 255:
-        summoner_floor[floor].total_rank.setText("无段位")
-    else:
-        summoner_floor[floor].total_rank.setText(
-            f'{tier[info["season_list"][0]["tier"]]}'
-            f'{"" if info["season_list"][0]["tier"] in [0, 6, 7] else queue[info["season_list"][0]["queue"]]}'
-            f'{info["season_list"][0]["win_point"]}')
-    summoner_floor[floor].recently_worl.setText(f'{info["record_count"]["wins"]}胜{info["record_count"]["lost"]}负')
-    summoner_floor[floor].recently_rate.setText(
-        f'{int(info["record_count"]["wins"] / (info["record_count"]["wins"] + info["record_count"]["lost"]) * 100)}%'
-    )
-
-    summoner[floor] = {
-        "near_record": info['near_record'],
-        "champion_list": info["champion_list"]
-    }
-    summoner_floor[floor].show()
-
-
-def set_summoner_hero(floor, hero_id):
-    try:
-        summoner_floor = {
-            0: summoner_1,
-            1: summoner_2,
-            2: summoner_3,
-            3: summoner_4,
-            4: summoner_5,
-            5: summoner_1,
-            6: summoner_2,
-            7: summoner_3,
-            8: summoner_4,
-            9: summoner_5
-
-        }
-
-        global summoner
-        #####
-        if floor in summoner:
-            total = summoner[floor]["champion_list"].get(hero_id, {}).get("total", 0)
-            wins = summoner[floor]["champion_list"].get(hero_id, {}).get("wins", 0)
-            if total == 0:
-                summoner_floor[floor].hero_sessions.setText(f"暂无场次")
-                summoner_floor[floor].hero_rate.setText("")
-
-            else:
-                summoner_floor[floor].hero_sessions.setText(f'{total}场')
-                summoner_floor[floor].hero_rate.setText(
-                    f"{int(wins / total * 100)}%"
-                )
-            if hero_id in summoner[floor].get("near_record", {}):
-                summoner_floor[floor].hero_worl.setText(
-                    f'{summoner[floor]["near_record"][hero_id]["wins"]}胜'
-                    f'{summoner[floor]["near_record"][hero_id]["lost"]}负'
-                )
-            else:
-                summoner_floor[floor].hero_worl.setText("无记录")
-    except Exception as e:
-        raise print(e)
-
-
-def set_summoner_rect():
-    width = 101
-    rect = win32gui.GetWindowRect(win32gui.FindWindow(None, 'League of Legends'))
-    s1_x = int(rect[0] + 0.1725 * (rect[2] - rect[0]))
-    s1_y = int(rect[1] + 0.1311 * (rect[3] - rect[1]))
-    # print(s1_x, s1_y)
-    summoner_1.move(s1_x, s1_y)
-    summoner_2.move(s1_x, s1_y + width)
-    summoner_3.move(s1_x, s1_y + 2 * width)
-    summoner_4.move(s1_x, s1_y + 3 * width)
-    summoner_5.move(s1_x, s1_y + 4 * width)
-
-
-def set_summoner_show():
+def summoner_init(data: dict):
+    """
+    :param data: {ppuid:floor}
+    :return:
+    """
     global summoner
     summoner = {}
-    summoner_1.hide()
-    summoner_2.hide()
-    summoner_3.hide()
-    summoner_4.hide()
-    summoner_5.hide()
+    for ppuid, floor in data.items():
+        summoner[ppuid] = {"UI": summoner_rect.bind_ui(floor)}
+    summoner_rect.start()
+
+
+def set_summoner_info(ppuid: str, data: dict):
+    summoner[ppuid].update(data)
+    wins = data["wins"]
+    lost = data["lost"]
+    summoner[ppuid]["UI"].recently.setText(f'近{wins + lost}场:')
+    summoner[ppuid]["UI"].recently_worl.setText(f'{wins}胜{lost}负{wins / (wins + lost) * 100:.0f}%')
+    summoner[ppuid]["UI"].recently_state.setText(f'{data["state"]}')
+    summoner[ppuid]["UI"].rank.setText(f'{data["tier"]}')
+    summoner[ppuid]["UI"].auto_size()
+    summoner[ppuid]["UI"].show()
+
+
+def set_summoner_hero(ppuid, hero_id: int):
+    if 'hero_collections' in summoner[ppuid]:
+        hero_no = summoner[ppuid]['hero_collections'].get(hero_id, {'championPoints_no': '无'})[
+            'championPoints_no']
+        hero_proficiency = summoner[ppuid]['hero_collections'].get(hero_id, {'championPoints': '0'})[
+            'championPoints']
+        hero_worl = summoner[ppuid]['hero_worl'].get(hero_id, {})
+        wins = hero_worl.get("wins", 0)
+        lost = hero_worl.get("lost", 0)
+        # hero_worl = hero_worl if (wins + lost) == 0 else False
+
+        hero_worl = f'{wins}胜{lost}负{wins / (wins + lost) * 100:.0f}%' if hero_worl else '无记录'
+
+        summoner[ppuid]["UI"].hero_no.setText(f"{hero_no}")
+        summoner[ppuid]["UI"].hero_proficiency.setText(f"{hero_proficiency}")
+        summoner[ppuid]["UI"].hero_worl.setText(f"{hero_worl}")
+        summoner[ppuid]["UI"].auto_size()
+
+
+def set_summoner_hide():
+    summoner_rect.init()
 
 
 def start():
@@ -232,31 +158,26 @@ def start():
     qthread.set_text.connect(set_state)
     qthread.load_user_data.connect(load_user_data)  # 载入
     qthread.window_enable.connect(lambda b: main_window.setEnabled(b))
+    ##########################################################
     qthread.summoner_info.connect(set_summoner_info)
     qthread.summoner_hero.connect(set_summoner_hero)
-    qthread.summoner_rect.connect(set_summoner_rect)
-    qthread.summoner_show.connect(set_summoner_show)
+    qthread.summoner_hide.connect(set_summoner_hide)
+    qthread.summoner_init.connect(summoner_init)
     ###############################################################
-
     qthread.start()
     main_window.show()
-    '''
-    summoner_1.show()
-    summoner_2.show()
-    summoner_3.show()
-    summoner_4.show()
-    summoner_5.show()
-    '''
 
 
 if __name__ == '__main__':
+    app = QApplication(sys.argv)
     hero = {}
     user = {}
-    app = QApplication(sys.argv)
+    summoner = {}
+
     lcu = LcuRequest()
     qthread = LcuThread(lcu)
+    summoner_rect = SummonerUIRect()
     ui_home = lolapiUI.Ui_Frame()
-    summoner = {}
     '''
     #UI美化,最后会用到
     Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
@@ -264,15 +185,7 @@ if __name__ == '__main__':
     '''
     main_window = RoundedWindow()
     ui_home.setupUi(main_window)
-
-    #############
-
-    summoner_1 = Ui_Form()
-    summoner_2 = Ui_Form()
-    summoner_3 = Ui_Form()
-    summoner_4 = Ui_Form()
-    summoner_5 = Ui_Form()
-
-    #############
+    main_window.show()
+    add_text(f"{time.ctime()}")
     start()
     app.exec_()  # 开始

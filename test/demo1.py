@@ -1,20 +1,20 @@
-import multiprocessing
+import sys
 import time
 
+from PyQt5.QtWidgets import QApplication
+from win32api import Sleep
 
-def func(msg):
-    return multiprocessing.current_process().name + '-' + msg
+import lolapiUI
+from Summoner import SummonerUIRect
+from RoundedWindow import RoundedWindow
+from UI.se import Ui_form
 
+app = QApplication(sys.argv)
+summoner_rect = SummonerUIRect()
+ui = summoner_rect.bind_ui(1)
 
-if __name__ == "__main__":
-    pool = multiprocessing.Pool(processes=4)  # 创建4个进程
-    results = []
-    for i in range(10):
-        msg = "hello %d" % (i)
-        results.append(pool.apply_async(func, (msg,)))
-    pool.close()  # 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用
-    #  pool.join()  # 等待进程池中的所有进程执行完毕
-    print("Sub-process(es) done.")
+ui.show()
 
-    for res in results:
-        print(res.get(), type(res))
+summoner_rect.start()
+print(time.ctime())
+app.exec_()  # 开始

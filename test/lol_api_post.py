@@ -1,4 +1,6 @@
-from  Lcu import  LcuRequest
+from Lcu import LcuRequest
 
-lr=LcuRequest()
-lr.getdata()
+lcu = LcuRequest()
+session = lcu.getdata('/swagger/v2/swagger.json').json()
+#/data-store/v1/install-dir
+print(session)

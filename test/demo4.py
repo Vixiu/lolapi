@@ -1,22 +1,30 @@
-import json
+import asyncio
+import threading
 
-from requests import request
+from PyQt5.QtCore import QThread
 
-url = 'https://lol.qq.com/act/lbp/common/guides/guideschampion_position.js'
 
-url1 = 'https://x1-6833.native.qq.com/x1/6833/1061021&3af49f?championid=666'
+class MyThread(QThread):
+    def run(self):
+        # 创建一个新的事件循环
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
 
-s = 'https://lol.sw.game.qq.com/lol/lwdcommact/a20211015billboard/a20211015api/fight?dtstatdate=20220908&callback=getRankFightCallback&ts=2771181'
+        # 在新的事件循环中运行异步函数
+        loop.run_until_complete(self.my_async_function())
 
-# game_queue_config_id = ['440', '420']
-# lane = ['top', 'mid', 'jungle', 'support', 'bottom']
-# tier = ['0', '5', '6', '10', '20', '30', '40', '50', '80']
-print(
+        # 关闭事件循环
+        loop.close()
 
-    # ['https://x1-6833.native.qq.com/x1/6833/1061021&3af49f?championid=666&lane='+_+'&ijob=all' for _ in lane]
-)
+    async def my_async_function(self):
+        print("Start async function")
+        await asyncio.sleep(2)
+        print("End async function")
 
-data = request('get', url).text
-data = json.loads(data[data.index('{'):data.rindex('}') + 1])['list']
-for _ in data:
-    print(_, list(data[_].keys()))
+
+# 创建并启动线程
+my_thread = MyThread()
+my_thread.start()
+
+# 等待线程结束
+my_thread.wait()

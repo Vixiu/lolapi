@@ -20,7 +20,7 @@ async def post_queue(queue_id):
 
                 headers={
                     "User-Agent": "LeagueOfLegendsClient",
-                    'Authorization': 'Basic ' + b64encode(f'riot:{lcu.pw}'.encode()).decode(),
+                    'Authorization': 'Basic ' + b64encode(f'riot:{lcu.token}'.encode()).decode(),
                 },
                 json=["CHEST_3330162"],
 
