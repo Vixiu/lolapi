@@ -1,22 +1,20 @@
-import asyncio
+
 from base64 import b64encode
 
 import json
 
-from time import sleep
-import traceback
+
 from win32api import Sleep
-import aiohttp
-import requests
+
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import QThread, QMutex, QWaitCondition
+from PyQt5.QtCore import QThread
 from psutil import process_iter
 
 from urllib3 import disable_warnings
 from requests import request
 
-from Summoner import SummonerUIRect, GetSummonerMatch
+from Summoner import  GetSummonerMatch
 
 
 class LcuRequest:
