@@ -1,20 +1,10 @@
-import sys
-import time
+from mpmath import mp
 
-from PyQt5.QtWidgets import QApplication
-from win32api import Sleep
+# 设置 mp 中的浮点数精度（位数）
+mp.dps = 1000000000000000000  # 设置为1万零1位
 
-import lolapiUI
-from Summoner import SummonerUIRect
-from RoundedWindow import RoundedWindow
-from UI.se import Ui_form
+# 计算 π
+pi = mp.pi
 
-app = QApplication(sys.argv)
-summoner_rect = SummonerUIRect()
-ui = summoner_rect.bind_ui(1)
-
-ui.show()
-
-summoner_rect.start()
-print(time.ctime())
-app.exec_()  # 开始
+# 输出 π 的后1万位
+print(str(pi)[2:])  # 去掉小数点，输出后1万位

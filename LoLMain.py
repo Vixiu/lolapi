@@ -17,7 +17,8 @@ from GameInfo import Info
 from Lcu import LcuRequest, LcuThread
 from RoundedWindow import RoundedWindow
 from Summoner import SummonerUIRect
-from SummonerUI import Ui_form
+
+from setting import Ui_Dialog as uf
 
 
 def set_state(_str):
@@ -25,43 +26,30 @@ def set_state(_str):
     ui_home.dial.setValue(ui_home.dial.value() + 5)
 
 
-def randomcolor():
-    color_arr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
-    color = ""
-    for i in range(6):
-        color += color_arr[random.randint(0, 14)]
-    return "#" + color
-
-
 def auto_accept(state):
     if state == 0:
         qthread.accept_flag = False
-        ui_home.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '自动接受>>>已关闭' + "<font>")
     else:
         qthread.accept_flag = True
-        ui_home.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '自动接受>>>已开启' + "<font>")
 
 
 def choose_hero(state):
     if state == 0:
         ui_home.herolist.setEnabled(False)
-        ui_home.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '秒抢>>>已关闭' + "<font>")
+
     else:
         ui_home.herolist.setEnabled(True)
         qthread.hero_choose = ui_home.herolist.currentData()
-        ui_home.Gongao.append("<font color='{color}'>".format(
-            color=randomcolor()) + '秒抢>>>' + ui_home.herolist.currentText() + "<font>")
 
 
 def grab_hero():
     qthread.hero_choose = ui_home.herolist.currentData()
-    ui_home.Gongao.append(
-        "<font color='{color}'>".format(color=randomcolor()) + '秒抢>>>' + ui_home.herolist.currentText() + "<font>")
 
 
 def load_user_data():
     global user
     user = lcu.getdata('/lol-summoner/v1/current-summoner').json()
+    print(lcu.getdata('/lol-summoner/v1/current-summoner').text)
     ui_home.name.setText(user['internalName'])
     ui_home.profile.setPixmap(QPixmap(QImage.fromData(
         lcu.getdata('/lol-game-data/assets/v1/profile-icons/' + str(user['profileIconId']) + '.jpg').content)))
@@ -124,11 +112,20 @@ def create_tray_icon():
     tray_icon = QSystemTrayIcon(main_window)
     tray_icon.setIcon(QIcon(r"C:\Users\lnori\Desktop\q.png"))
 
-    ARestore = QAction('显示', main_window)
+    ARestore = QAction('显示界面', main_window)
     ARestore.triggered.connect(lambda: main_window.showNormal())
+
     AQuit = QAction('退出', main_window)
     AQuit.triggered.connect(lambda: QCoreApplication.instance().quit())
+
+    AMatch = QAction('战绩查询', main_window)
+    AMatch.triggered.connect(lambda: QMessageBox.critical(main_window, ':(', '暂未实现'))
+    AToolbox = QAction('工具箱', main_window)
+    AToolbox.triggered.connect(lambda: QMessageBox.critical(main_window, ':(', '暂未实现'))
+    # 先添加的在上面
     menu.addAction(ARestore)
+    menu.addAction(AMatch)
+    menu.addAction(AToolbox)
     menu.addAction(AQuit)
     tray_icon.setContextMenu(menu)
     tray_icon.show()
@@ -137,8 +134,14 @@ def create_tray_icon():
 #
 def start_game(mode):
     # app_arguments = ["--arg1", "value1", "--arg2", "value2"]
-    QMessageBox.critical(main_window, ':(', '没有找到路径,请手动启动吧！')
-   # subprocess.Popen(r"C:\Users\lnori\Desktop\nuitka.exe")
+    mf_m.show()
+    mf_m.setModal(True)
+  #  mf_m.setModal(True)
+ #   mf_m.activateWindow()
+ #   QMessageBox.about(main_window, ':(', '没有找到路径,请手动启动吧！')
+
+
+# subprocess.Popen(r"C:\Users\lnori\Desktop\nuitka.exe")
 
 
 def start():
@@ -164,7 +167,7 @@ def start():
     effect.setColor(Qt.black)  # 颜色
     ui_home.widget_1.setGraphicsEffect(effect)
     ##########################################################
-    ui_home.match.clicked.connect(ui_init)
+    ui_home.match_query.clicked.connect(ui_init)
     ui_home.Button_X.clicked.connect(lambda: main_window.hide())
     ui_home.start.clicked.connect(start_game)
     #  ui_home.herolist.highlighted[str].connect(
@@ -193,6 +196,7 @@ def start():
 
 
 if __name__ == '__main__':
+    from PyQt5.QtWidgets import QDialog
     app = QApplication(sys.argv)
     hero = {}
     user = {}
@@ -203,6 +207,7 @@ if __name__ == '__main__':
     summoner_rect = SummonerUIRect()
     ui_home = lolapiUI.Ui_Frame()
 
+
     '''
     #UI美化,最后会用到
     Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
@@ -210,7 +215,11 @@ if __name__ == '__main__':
     '''
     main_window = RoundedWindow()
     ui_home.setupUi(main_window)
-    main_window.show()
+
+    mh = uf()
+    mf_m = QDialog(main_window)
+    mh.setupUi(mf_m)
+    ui_home.widget_1.show()
 
     start()
     app.exec_()  # 开始

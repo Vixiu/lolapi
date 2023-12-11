@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>252</width>
-    <height>431</height>
+    <width>250</width>
+    <height>470</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -28,101 +28,56 @@
      <x>0</x>
      <y>0</y>
      <width>250</width>
-     <height>431</height>
+     <height>470</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">QWidget#Button_X {
-            border-width:0px 0px 0px 0px; 
-   
-}
-QWidget#Button_min{
-border-width:0px 0px 0px 0px; 
-}
+    <string notr="true">
 QWidget#widget_1{
 background-color:#f8f9fa;
 border-radius:10px;
 border: 5px, white;
 margin: 5px;
 }
+
+QPushButton#Button_X{
+background-color:#f8f9fa;
+}
+
+QPushButton:hover#Button_X{
+background-color: rgba(181.000, 202.000, 244.000, 0.333);
+}
+QPushButton:pressed#Button_X {
+   padding-right:6px; /*鼠标按下不放时背景颜色*/
+	padding-bottom:3px;
+
+}
+
 QPushButton {
-    color: #0081db;
-    border: 1px solid #dadce0;
+	background-color: rgba(181.000, 202.000, 244.000, 0.333); /*背景颜色*/
+	color: #3781ea;
+    border:0px solid #dadce0;
     padding: 4px 8px;
     border-radius: 4px;
 }
-QPushButton:!window {
-    background: transparent;
-}
-QPushButton:flat,
-QPushButton:default {
-    border: none;
-    padding: 5px 9px;
-}
-QPushButton:default {
-    color: #f8f9fa;
-    background: #0081db;
-}
-QPushButton:hover,
-QPushButton:flat:hover {
-    background: rgba(181.000, 202.000, 244.000, 0.333);
-}
-QPushButton:pressed,
-QPushButton:flat:pressed,
-QPushButton:checked:pressed,
-QPushButton:flat:checked:pressed {
-    background: rgba(181.000, 202.000, 244.000, 0.933);
-}
-QPushButton:checked,
-QPushButton:flat:checked {
-    background: rgba(181.000, 202.000, 244.000, 0.733);
-}
-QPushButton:default:hover {
-    background: #3781ea;
-}
-QPushButton:default:pressed {
-    background: #6ca1f0;
-}
-QPushButton:default:disabled {
-    background: #dadce0;
-}
-QRadioButton {
-    spacing: 8px;
-}
-QGroupBox::title,
-QAbstractItemView::item {
-    spacing: 6px;
-}
-QCheckBox::indicator,
-QGroupBox::indicator,
-QAbstractItemView::indicator,
-QRadioButton::indicator {
-    height: 18px;
-    width: 18px;
-}
-QCheckBox::indicator,
-QGroupBox::indicator,
 
-QCheckBox::indicator:unchecked:disabled,
-QGroupBox::indicator:unchecked:disabled,
-
-QCheckBox::indicator:checked,
-QGroupBox::indicator:checked,
-
-QCheckBox::indicator:checked:disabled,
-QGroupBox::indicator:checked:disabled,
-
-QCheckBox::indicator:indeterminate,
-
-QCheckBox::indicator:indeterminate:disabled,
-
-</string>
+QPushButton:hover {
+    background-color:rgb(213, 221, 234); /*鼠标悬停时背景颜色*/
+}
+/*注意pressed一定要放在hover的后面，否则没有效果*/
+QPushButton:pressed {
+     padding-right:0px; /*鼠标按下不放时背景颜色*/
+	padding-bottom:0px;
+}
+QLabel#state{
+color:rgb(0, 170, 255);
+}</string>
    </property>
    <widget class="QLabel" name="profile">
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>30</y>
+      <y>20</y>
       <width>150</width>
       <height>150</height>
      </rect>
@@ -140,7 +95,7 @@ QCheckBox::indicator:indeterminate:disabled,
      </size>
     </property>
     <property name="styleSheet">
-     <string notr="true">background:rgb(197, 197, 197)</string>
+     <string notr="true">background:rgb(232, 232, 232)</string>
     </property>
     <property name="text">
      <string/>
@@ -152,59 +107,11 @@ QCheckBox::indicator:indeterminate:disabled,
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>0</y>
-      <width>71</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>8</number>
-     </property>
-     <property name="topMargin">
-      <number>4</number>
-     </property>
-     <item>
-      <widget class="QPushButton" name="Button_min">
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>-</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="Button_X">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string>X</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
    <widget class="QLabel" name="name">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>180</y>
+      <y>170</y>
       <width>231</width>
       <height>41</height>
      </rect>
@@ -235,44 +142,13 @@ QCheckBox::indicator:indeterminate:disabled,
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>30</y>
-      <width>150</width>
-      <height>150</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>150</width>
-      <height>150</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>150</width>
-      <height>150</height>
-     </size>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="pixmap">
-     <pixmap>D:/lol-api/lol/icon/图层 2.png</pixmap>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>11</x>
-      <y>233</y>
+      <y>220</y>
       <width>231</width>
-      <height>147</height>
+      <height>197</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -280,15 +156,15 @@ QCheckBox::indicator:indeterminate:disabled,
       <number>10</number>
      </property>
      <property name="leftMargin">
-      <number>40</number>
+      <number>35</number>
      </property>
      <property name="rightMargin">
-      <number>40</number>
+      <number>35</number>
      </property>
      <item>
-      <widget class="QPushButton" name="match">
+      <widget class="QPushButton" name="match_query">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="minimumSize">
         <size>
@@ -303,6 +179,24 @@ QCheckBox::indicator:indeterminate:disabled,
        </property>
        <property name="text">
         <string>战绩查询</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="math_details">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>对局详情</string>
        </property>
       </widget>
      </item>
@@ -331,7 +225,7 @@ QCheckBox::indicator:indeterminate:disabled,
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Start">
+      <widget class="QPushButton" name="start">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -353,13 +247,13 @@ QCheckBox::indicator:indeterminate:disabled,
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>11</x>
-      <y>380</y>
+      <x>10</x>
+      <y>411</y>
       <width>231</width>
-      <height>41</height>
+      <height>61</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -442,13 +336,65 @@ QCheckBox::indicator:indeterminate:disabled,
      </item>
     </layout>
    </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>20</y>
+      <width>150</width>
+      <height>150</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>150</width>
+      <height>150</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>150</width>
+      <height>150</height>
+     </size>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>D:/lol-api/lol/icon/图层 2.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_X">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>10</y>
+      <width>41</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>X</string>
+    </property>
+   </widget>
    <zorder>profile</zorder>
-   <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>name</zorder>
    <zorder>label_3</zorder>
-   <zorder></zorder>
+   <zorder>Button_X</zorder>
   </widget>
  </widget>
  <resources/>
