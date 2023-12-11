@@ -208,7 +208,7 @@ if __name__ == '__main__':
     ui_home = lolapiUI.Ui_Frame()
 
 
-    '''
+    ''' 
     #UI美化,最后会用到
     Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
 
