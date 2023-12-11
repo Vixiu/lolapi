@@ -1,77 +1,55 @@
 import json
+import os
 import random
 import sys
 import time
 from datetime import date, timedelta
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtWidgets import QApplication, QCompleter, QGraphicsDropShadowEffect
+from PyQt5.QtCore import Qt, QCoreApplication
+from PyQt5.QtGui import QPixmap, QImage, QIcon
+from PyQt5.QtWidgets import QApplication, QCompleter, QGraphicsDropShadowEffect, QSystemTrayIcon, QAction, QMenu, QMessageBox
 from pypinyin import lazy_pinyin
-
+import subprocess
 import lolapiUI
 from GameInfo import Info
 
 from Lcu import LcuRequest, LcuThread
 from RoundedWindow import RoundedWindow
 from Summoner import SummonerUIRect
-from SummonerUI import Ui_form
+
+from setting import Ui_Dialog as uf
 
 
-def add_text(text):
-    """
-    :param text: 内容
-    :return:
-    """
-    ui_home.Gongao.append("<font color='{color}' size='4'>".format(color=randomcolor()) + text + "<font>")
-
-
-def set_state(_str, color='#000000'):
-    ui_home.state.setText("<font color='{color}' size='4'>".format(color=color) + _str + "<font>")
-    _ = ui_home.dial.value()
-    if _ >= 100:
-        _ = -25
-    ui_home.dial.setValue(_ + 5)
-
-
-def randomcolor():
-    color_arr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
-    color = ""
-    for i in range(6):
-        color += color_arr[random.randint(0, 14)]
-    return "#" + color
+def set_state(_str):
+    ui_home.state.setText(f"{_str}")
+    ui_home.dial.setValue(ui_home.dial.value() + 5)
 
 
 def auto_accept(state):
     if state == 0:
         qthread.accept_flag = False
-        ui_home.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '自动接受>>>已关闭' + "<font>")
     else:
         qthread.accept_flag = True
-        ui_home.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '自动接受>>>已开启' + "<font>")
 
 
 def choose_hero(state):
     if state == 0:
         ui_home.herolist.setEnabled(False)
-        ui_home.Gongao.append("<font color='{color}'>".format(color=randomcolor()) + '秒抢>>>已关闭' + "<font>")
+
     else:
         ui_home.herolist.setEnabled(True)
         qthread.hero_choose = ui_home.herolist.currentData()
-        ui_home.Gongao.append("<font color='{color}'>".format(
-            color=randomcolor()) + '秒抢>>>' + ui_home.herolist.currentText() + "<font>")
 
 
 def grab_hero():
     qthread.hero_choose = ui_home.herolist.currentData()
-    ui_home.Gongao.append(
-        "<font color='{color}'>".format(color=randomcolor()) + '秒抢>>>' + ui_home.herolist.currentText() + "<font>")
 
 
 def load_user_data():
     global user
     user = lcu.getdata('/lol-summoner/v1/current-summoner').json()
+    print(lcu.getdata('/lol-summoner/v1/current-summoner').text)
     ui_home.name.setText(user['internalName'])
     ui_home.profile.setPixmap(QPixmap(QImage.fromData(
         lcu.getdata('/lol-game-data/assets/v1/profile-icons/' + str(user['profileIconId']) + '.jpg').content)))
@@ -124,17 +102,64 @@ def set_summoner_hide():
     summoner_rect.init()
 
 
+def ui_init():
+    ui_home.name.setText("召唤师")
+    ui_home.profile.clear()
+
+
+def create_tray_icon():
+    menu = QMenu()
+    tray_icon = QSystemTrayIcon(main_window)
+    tray_icon.setIcon(QIcon(r"C:\Users\lnori\Desktop\q.png"))
+
+    ARestore = QAction('显示界面', main_window)
+    ARestore.triggered.connect(lambda: main_window.showNormal())
+
+    AQuit = QAction('退出', main_window)
+    AQuit.triggered.connect(lambda: QCoreApplication.instance().quit())
+
+    AMatch = QAction('战绩查询', main_window)
+    AMatch.triggered.connect(lambda: QMessageBox.critical(main_window, ':(', '暂未实现'))
+    AToolbox = QAction('工具箱', main_window)
+    AToolbox.triggered.connect(lambda: QMessageBox.critical(main_window, ':(', '暂未实现'))
+    # 先添加的在上面
+    menu.addAction(ARestore)
+    menu.addAction(AMatch)
+    menu.addAction(AToolbox)
+    menu.addAction(AQuit)
+    tray_icon.setContextMenu(menu)
+    tray_icon.show()
+
+
+#
+def start_game(mode):
+    # app_arguments = ["--arg1", "value1", "--arg2", "value2"]
+    mf_m.show()
+    mf_m.setModal(True)
+  #  mf_m.setModal(True)
+ #   mf_m.activateWindow()
+ #   QMessageBox.about(main_window, ':(', '没有找到路径,请手动启动吧！')
+
+
+# subprocess.Popen(r"C:\Users\lnori\Desktop\nuitka.exe")
+
+
 def start():
     ##########################################################
     global hero
     hero = Info().hero_id
+    ui_home.dial.setWrapping(True)  # 设置转盘转完一圈后没有间隙
+    main_window.setWindowTitle(' LOLHlp')
+    create_tray_icon()
+    ui_init()
+    '''
     ui_home.herolist.clear()
     for k, v in sorted({hero[k]['title']: k for k in hero}.items(), key=lambda x: lazy_pinyin(x)):
         ui_home.herolist.addItem(k, v)
     completer = QCompleter(sorted([hero[k]['title'] for k in hero], key=lambda x: lazy_pinyin(x)))
     completer.setFilterMode(Qt.MatchContains)
     ui_home.herolist.setCompleter(completer)
-
+    '''
     ##########################################################
     effect = QGraphicsDropShadowEffect()
     effect.setBlurRadius(10)  # 范围
@@ -142,11 +167,14 @@ def start():
     effect.setColor(Qt.black)  # 颜色
     ui_home.widget_1.setGraphicsEffect(effect)
     ##########################################################
+    ui_home.match_query.clicked.connect(ui_init)
+    ui_home.Button_X.clicked.connect(lambda: main_window.hide())
+    ui_home.start.clicked.connect(start_game)
     #  ui_home.herolist.highlighted[str].connect(
     #     lambda s: ui_home.profile.setPixmap(hero[hero_name_id[s]]['icon']))
-    ui_home.zdjs.stateChanged.connect(lambda s: auto_accept(s))
-    ui_home.herolist.currentTextChanged.connect(lambda: grab_hero())
-    ui_home.checkBox.stateChanged.connect(lambda s: choose_hero(s))
+    #    ui_home.zdjs.stateChanged.connect(lambda s: auto_accept(s))
+    #    ui_home.herolist.currentTextChanged.connect(lambda: grab_hero())
+    #    ui_home.checkBox.stateChanged.connect(lambda s: choose_hero(s))
 
     # ui_home.hero.editTextChanged.connect(lambda s:print(s))
     # ui_home.herolist.currentIndexChanged.connect(lambda s: print(s))
@@ -154,7 +182,6 @@ def start():
     # ui_home.pushButton_7.clicked.connect(test2)
     ############################################################
 
-    qthread.add_text.connect(add_text)
     qthread.set_text.connect(set_state)
     qthread.load_user_data.connect(load_user_data)  # 载入
     qthread.window_enable.connect(lambda b: main_window.setEnabled(b))
@@ -169,6 +196,7 @@ def start():
 
 
 if __name__ == '__main__':
+    from PyQt5.QtWidgets import QDialog
     app = QApplication(sys.argv)
     hero = {}
     user = {}
@@ -178,6 +206,8 @@ if __name__ == '__main__':
     qthread = LcuThread(lcu)
     summoner_rect = SummonerUIRect()
     ui_home = lolapiUI.Ui_Frame()
+
+
     '''
     #UI美化,最后会用到
     Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
@@ -185,7 +215,11 @@ if __name__ == '__main__':
     '''
     main_window = RoundedWindow()
     ui_home.setupUi(main_window)
-    main_window.show()
-    add_text(f"{time.ctime()}")
+
+    mh = uf()
+    mf_m = QDialog(main_window)
+    mh.setupUi(mf_m)
+    ui_home.widget_1.show()
+
     start()
     app.exec_()  # 开始

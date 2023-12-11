@@ -1,4 +1,7 @@
-lst = [i for i in range(10)]
+from Lcu import LcuRequest
 
-for i in lst:
-    print(i,i - 5 if i >= 5 else i)
+lcu = LcuRequest()
+# /network-testing/v1/experiments
+# /riotclient/kill-and-restart-ux
+# /network-testing/v1/game-latency
+print(lcu.getdata("/plugin-manager/v2/descriptions").text)

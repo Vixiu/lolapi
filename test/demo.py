@@ -1,55 +1,45 @@
-import asyncio
-import json
-import time
-from base64 import b64encode
-
-import aiohttp
-import requests
-from win32api import Sleep
-
-from Lcu import LcuRequest
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QDialog, QVBoxLayout
 
 
-async def post_queue(queue_id):
-    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=10, ssl=False), trust_env=True) as session:
-        async with  session.request(
-                "post",
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle('Main Window')
+
+        self.central_widget = QLabel('This is the main window')
+        self.setCentralWidget(self.central_widget)
+
+        self.button = QPushButton('Open Dialog', self)
+        self.button.clicked.connect(self.open_dialog)
+
+    def open_dialog(self):
+        dialog = Dialog()
+        dialog.exec_()
 
 
-                f"https://127.0.0.1:{lcu.port}/lol-loot/v1/recipes/CHEST_3330162_OPEN/craft?repeat=200",
+class Dialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
-                headers={
-                    "User-Agent": "LeagueOfLegendsClient",
-                    'Authorization': 'Basic ' + b64encode(f'riot:{lcu.token}'.encode()).decode(),
-                },
-                json=["CHEST_3330162"],
+        self.setWindowTitle('Dialog')
 
-        ) as resp:
-            return await resp.text(), queue_id
+        self.label = QLabel('This is a dialog')
+        self.button = QPushButton('Close Dialog', self)
+        self.button.clicked.connect(self.close)
 
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.button)
 
-def result(res):
-    print(1)
-
-lcu = LcuRequest()
+        self.setLayout(layout)
 
 
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
 
-task = []
+    main_window = MainWindow()
+    main_window.show()
 
-start = time.perf_counter()
-
-for i in range(10):
-
-    _ = loop.create_task(post_queue(i))
-    _.add_done_callback(result)
-    task.append(_)
-
-    loop.run_until_complete(asyncio.wait(task))
-
-end = time.perf_counter()
-
-# 计算运行时间，单位为秒
-print('运行时间为：{}秒'.format(end - start))
+    sys.exit(app.exec_())
