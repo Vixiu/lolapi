@@ -219,7 +219,7 @@ if __name__ == '__main__':
     '''
     main_window = RoundedWindow()
     ui_home.setupUi(main_window)
-
+    # test
     mh = uf()
     mf_m = QDialog(main_window)
     mh.setupUi(mf_m)
