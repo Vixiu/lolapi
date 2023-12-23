@@ -3,7 +3,6 @@ import os
 import random
 import sys
 import time
-from datetime import date, timedelta
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QCoreApplication
@@ -11,49 +10,45 @@ from PyQt5.QtGui import QPixmap, QImage, QIcon
 from PyQt5.QtWidgets import QApplication, QCompleter, QGraphicsDropShadowEffect, QSystemTrayIcon, QAction, QMenu, QMessageBox
 from pypinyin import lazy_pinyin
 import subprocess
-import lolapiUI
+
 from GameInfo import Info
 
 from Lcu import LcuRequest, LcuThread
-from RoundedWindow import RoundedWindow
+
 from Summoner import SummonerUIRect
 
-from setting import Ui_Dialog as uf
+from UI import Toolbox, MainWindow
 
 
 def set_state(_str):
-    ui_home.state.setText(f"{_str}")
-    ui_home.dial.setValue(ui_home.dial.value() + 5)
+    MainUI.state.setText(f"{_str}")
+    MainUI.dial.setValue(MainUI.dial.value() + 5)
 
 
-def auto_accept(state):
-    if state == 0:
-        qthread.accept_flag = False
-    else:
-        qthread.accept_flag = True
-
-
-def choose_hero(state):
-    if state == 0:
-        ui_home.herolist.setEnabled(False)
-
-    else:
-        ui_home.herolist.setEnabled(True)
-        qthread.hero_choose = ui_home.herolist.currentData()
-
-
-def grab_hero():
-    qthread.hero_choose = ui_home.herolist.currentData()
-
-
-def load_user_data():
-    global user
+def load_data():
+    global user, hero
     user = lcu.getdata('/lol-summoner/v1/current-summoner').json()
     print(lcu.getdata('/lol-summoner/v1/current-summoner').text)
-    ui_home.name.setText(user['internalName'])
-    ui_home.profile.setPixmap(QPixmap(QImage.fromData(
-        lcu.getdata('/lol-game-data/assets/v1/profile-icons/' + str(user['profileIconId']) + '.jpg').content)))
+    MainUI.name.setText(user['internalName'])
+    MainUI.profile.setPixmap(QPixmap(QImage.fromData(lcu.getdata('/lol-game-data/assets/v1/profile-icons/' + str(user['profileIconId']) + '.jpg').content)))
+    if not hero:
+        hero = Info().hero_id
+        set_hero_list()
 
+
+def set_hero_list():
+    ToolboxUI.grab_hero.clear()
+    completer = QCompleter(sorted([hero[k]['title'] for k in hero], key=lambda x: lazy_pinyin(x)))
+    completer.setFilterMode(Qt.MatchContains)
+    for k, v in sorted({hero[k]['title']: k for k in hero}.items(), key=lambda x: lazy_pinyin(x)):
+        ToolboxUI.grab_hero.addItem(k, v)
+        ToolboxUI.ban_hero_1.addItem(k, v)
+        ToolboxUI.ban_hero_2.addItem(k, v)
+        ToolboxUI.ban_hero_3.addItem(k, v)
+    ToolboxUI.grab_hero.setCompleter(completer)
+    ToolboxUI.ban_hero_1.setCompleter(completer)
+    ToolboxUI.ban_hero_2.setCompleter(completer)
+    ToolboxUI.ban_hero_3.setCompleter(completer)
 
 def summoner_init(data: dict):
     """
@@ -103,28 +98,33 @@ def set_summoner_hide():
 
 
 def ui_init():
-    ui_home.name.setText("召唤师")
-    ui_home.profile.clear()
+    MainUI.name.setText("召唤师")
+    MainUI.profile.clear()
 
 
 def create_tray_icon():
     menu = QMenu()
-    tray_icon = QSystemTrayIcon(main_window)
+    tray_icon = QSystemTrayIcon(MainUI)
     tray_icon.setIcon(QIcon(r"C:\Users\lnori\Desktop\q.png"))
 
-    ARestore = QAction('显示界面', main_window)
-    ARestore.triggered.connect(lambda: main_window.showNormal())
+    ARestore = QAction('显示界面', MainUI)
+    ARestore.triggered.connect(lambda: MainUI.show())
 
-    AQuit = QAction('退出', main_window)
+    AQuit = QAction('退出', MainUI)
     AQuit.triggered.connect(lambda: QCoreApplication.instance().quit())
 
-    AMatch = QAction('战绩查询', main_window)
-    AMatch.triggered.connect(lambda: QMessageBox.critical(main_window, ':(', '暂未实现'))
-    AToolbox = QAction('工具箱', main_window)
-    AToolbox.triggered.connect(lambda: QMessageBox.critical(main_window, ':(', '暂未实现'))
+    AMatchQuery = QAction('战绩查询', MainUI)
+    AMatchQuery.triggered.connect(lambda: QMessageBox.critical(MainUI, ':(', '暂未实现'))
+
+    AToolbox = QAction('工具箱', MainUI)
+    AToolbox.triggered.connect(lambda: QMessageBox.critical(MainUI, ':(', '暂未实现'))
+
+    AMathDetails = QAction('对局详情', MainUI)
+    AMathDetails.triggered.connect(lambda: QMessageBox.critical(MainUI, ':(', '暂未实现'))
     # 先添加的在上面
     menu.addAction(ARestore)
-    menu.addAction(AMatch)
+    menu.addAction(AMatchQuery)
+    menu.addAction(AMathDetails)
     menu.addAction(AToolbox)
     menu.addAction(AQuit)
     tray_icon.setContextMenu(menu)
@@ -134,57 +134,102 @@ def create_tray_icon():
 #
 def start_game(mode):
     # app_arguments = ["--arg1", "value1", "--arg2", "value2"]
-    mf_m.show()
-    mf_m.setModal(True)
-  #  mf_m.setModal(True)
- #   mf_m.activateWindow()
- #   QMessageBox.about(main_window, ':(', '没有找到路径,请手动启动吧！')
+    MainUI.widget_2.show()
+
+
+#  mf_m.setModal(True)
+
+
+#  mf_m.setModal(True)
+#   mf_m.activateWindow()
+#   QMessageBox.about(main_window, ':(', '没有找到路径,请手动启动吧！')
 
 
 # subprocess.Popen(r"C:\Users\lnori\Desktop\nuitka.exe")
 
+def match_query():
+    MainUI.widget_1.hide()
+    MainUI.widget_1.show()
+
+
+def hide_widows(widows=None):
+    toolbox_visible = ToolboxUI.isVisible()
+    main_visible = MainUI.isVisible()
+    main_widget_visible = MainUI.widget_1.isVisible()
+    if widows == 'MainUI':
+        if toolbox_visible:
+            MainUI.widget_1.hide()
+        else:
+            MainUI.hide()
+    elif widows == "ToolboxUI":
+        ToolboxUI.hide()
+
+    print('主窗口', MainUI.isVisible(), MainUI.widget_1.isVisible())
+
+
+def set_accept(flag):
+    qthread.accept_flag = flag
+
+
+def set_summoner_show(flag: bool):
+    qthread.summoner_ishow = flag
+    ToolboxUI.team_show_my.setEnabled(flag)
+    ToolboxUI.team_count.setEnabled(flag)
+
+
+def set_summoner_my_show(flag):
+    qthread.summoner_my_ishow = flag
+
+
+def set_summoner_max_match(count):
+    qthread.summoner_match.set_max_match(count)
+
+
+def set_grab(flag):
+    ToolboxUI.grab_hero.setEnabled(flag)
+    if flag:
+        print(ToolboxUI.grab_hero.currentData())
+        qthread.hero_choose = ToolboxUI.grab_hero.currentData()
+    else:
+        qthread.hero_choose = -1
+
+
+def set_grab_hero():
+    qthread.hero_choose = ToolboxUI.grab_hero.currentData()
+    print(ToolboxUI.grab_hero.currentData())
+
 
 def start():
     ##########################################################
-    global hero
-    hero = Info().hero_id
-    ui_home.dial.setWrapping(True)  # 设置转盘转完一圈后没有间隙
-    main_window.setWindowTitle(' LOLHlp')
+
+    MainUI.dial.setWrapping(True)  # 设置转盘转完一圈后没有间隙
+    MainUI.setWindowTitle(' LOLHlp')
     create_tray_icon()
     ui_init()
-    '''
-    ui_home.herolist.clear()
-    for k, v in sorted({hero[k]['title']: k for k in hero}.items(), key=lambda x: lazy_pinyin(x)):
-        ui_home.herolist.addItem(k, v)
-    completer = QCompleter(sorted([hero[k]['title'] for k in hero], key=lambda x: lazy_pinyin(x)))
-    completer.setFilterMode(Qt.MatchContains)
-    ui_home.herolist.setCompleter(completer)
-    '''
     ##########################################################
     effect = QGraphicsDropShadowEffect()
     effect.setBlurRadius(10)  # 范围
     effect.setOffset(0, 0)  # 横纵,偏移量
     effect.setColor(Qt.black)  # 颜色
-    ui_home.widget_1.setGraphicsEffect(effect)
+    MainUI.widget_1.setGraphicsEffect(effect)
     ##########################################################
-    ui_home.match_query.clicked.connect(ui_init)
-    ui_home.Button_X.clicked.connect(lambda: main_window.hide())
-    ui_home.start.clicked.connect(start_game)
-    #  ui_home.herolist.highlighted[str].connect(
-    #     lambda s: ui_home.profile.setPixmap(hero[hero_name_id[s]]['icon']))
-    #    ui_home.zdjs.stateChanged.connect(lambda s: auto_accept(s))
-    #    ui_home.herolist.currentTextChanged.connect(lambda: grab_hero())
-    #    ui_home.checkBox.stateChanged.connect(lambda s: choose_hero(s))
+    MainUI.Button_X.clicked.connect(lambda: hide_widows('MainUI'))
+    MainUI.setting.clicked.connect(lambda: ToolboxUI.show())
+    ###########################################################
+    #
+    ToolboxUI.close_button.clicked.connect(lambda: hide_widows('ToolboxUI'))
+    ToolboxUI.radio_accept_on.toggled.connect(lambda: set_accept(ToolboxUI.radio_accept_on.isChecked()))
+    ToolboxUI.radio_team_on.toggled.connect(lambda: set_summoner_show(ToolboxUI.radio_team_on.isChecked()))
+    ToolboxUI.team_show_my.toggled.connect(lambda: set_summoner_my_show(ToolboxUI.team_show_my.isChecked()))
+    ToolboxUI.team_count.textEdited.connect(lambda: set_summoner_max_match(int(ToolboxUI.team_count.text())))
+    ToolboxUI.radio_grab_on.toggled.connect(lambda: set_grab(ToolboxUI.radio_grab_on.isChecked()))
+    ToolboxUI.grab_hero.currentIndexChanged.connect(set_grab_hero)
 
-    # ui_home.hero.editTextChanged.connect(lambda s:print(s))
-    # ui_home.herolist.currentIndexChanged.connect(lambda s: print(s))
-    # ui_home.help.clicked.connect(test1)
-    # ui_home.pushButton_7.clicked.connect(test2)
     ############################################################
 
     qthread.set_text.connect(set_state)
-    qthread.load_user_data.connect(load_user_data)  # 载入
-    qthread.window_enable.connect(lambda b: main_window.setEnabled(b))
+    qthread.load_user_data.connect(load_data)  # 载入
+    qthread.window_enable.connect(lambda b: MainUI.setEnabled(b))
     ##########################################################
     qthread.summoner_info.connect(set_summoner_info)
     qthread.summoner_hero.connect(set_summoner_hero)
@@ -192,38 +237,22 @@ def start():
     qthread.summoner_init.connect(summoner_init)
     ###############################################################
     qthread.start()
-    main_window.show()
+    MainUI.show()
 
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import QDialog
     app = QApplication(sys.argv)
-    hero = {}
-    user = {}
-    summoner = {}
+
+    hero = {}  # 存储英雄信息
+    user = {}  # 存储用户信息
+    summoner = {}  # 存储队友信息
 
     lcu = LcuRequest()
     qthread = LcuThread(lcu)
     summoner_rect = SummonerUIRect()
-    ui_home = lolapiUI.Ui_Frame()
 
-
-    ''' 
-    #UI美化,最后会用到
-    
-    
-    
-    
-    Frame.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) 置顶
-
-    '''
-    main_window = RoundedWindow()
-    ui_home.setupUi(main_window)
-    # test
-    mh = uf()
-    mf_m = QDialog(main_window)
-    mh.setupUi(mf_m)
-    ui_home.widget_1.show()
+    MainUI = MainWindow()
+    ToolboxUI = Toolbox(MainUI)
 
     start()
     app.exec_()  # 开始

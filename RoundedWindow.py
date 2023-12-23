@@ -22,7 +22,6 @@ class RoundedWindow(QWidget):
     def __init__(self):
         super(QWidget, self).__init__()
         self.mPos = ''
-
         self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
