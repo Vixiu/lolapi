@@ -58,7 +58,7 @@ await asyncio.sleep(1)   在这里加入延迟
 class GetSummonerMatch(QThread):
     summoner_data = QtCore.pyqtSignal(str, dict)
 
-    def __init__(self, max_match=40):
+    def __init__(self, max_match=20):
         super().__init__()
         #    self.wegame_cookie = ""
         self.ppuid = []
@@ -166,6 +166,9 @@ class GetSummonerMatch(QThread):
             print(ppuid)
             task.append(loop.create_task(self.get_lol_match(ppuid)))
         loop.run_until_complete(asyncio.wait(task))
+
+    def set_max_match(self, count):
+        self.max_match = count - 1
 
 
 class SummonerUIRect(QThread):

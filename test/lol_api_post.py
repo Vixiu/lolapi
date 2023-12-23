@@ -1,6 +1,10 @@
+from win32api import Sleep
+
 from Lcu import LcuRequest
 
 lcu = LcuRequest()
-session = lcu.getdata('/swagger/v2/swagger.json').json()
-#/data-store/v1/install-dir
-print(session)
+
+while True:
+    res = lcu.getdata("/lol-champ-select/v1/session/timer").json()
+    print(res['adjustedTimeLeftInPhase'] / 1000, res['phase'],res['internalNowInEpochMs'])
+    Sleep(1000)
