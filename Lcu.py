@@ -1,42 +1,68 @@
+import asyncio
 from base64 import b64encode
 
 import json
 
+import aiohttp
+import requests
 from win32api import Sleep
-
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 from psutil import process_iter
 
 from urllib3 import disable_warnings
 from requests import request
-
 from Summoner import GetSummonerMatch
+import logging
 
 
 class LcuRequest:
     disable_warnings()
 
-    def __init__(self):
-        self.is_process = False
+    def __init__(self, wait_lcu_thread=3):
+        self.logger = logging.getLogger('my_logger')
         self.lcu_args = self.get_lcu_args()
-        self.port, self.token = self.lcu_args.get('app-port', '0000'), self.lcu_args.get("remoting-auth-token", 'None')
-        self.url = 'https://127.0.0.1:' + self.port
-        self.headers = {
-            "User-Agent": "LeagueOfLegendsClient",
-            'Authorization': 'Basic ' + b64encode(('riot' + ':' + self.token).encode()).decode(),
+        self.ws_session = None
+        self.ws_client = None
+        self.event_call_back = {}
+        if self.lcu_args:
+            self.port, self.token = self.lcu_args.get('app-port', '0000'), self.lcu_args.get("remoting-auth-token", 'None')
+            self.url = 'https://127.0.0.1:' + self.port
+            self.headers = {
+                "User-Agent": "LeagueOfLegendsClient",
+                'Authorization': 'Basic ' + b64encode(('riot' + ':' + self.token).encode()).decode(),
 
-        }
+            }
+
+            while True:
+                try:
+                    res = self.getdata('/riotclient/ux-state')
+                    if res.status_code == 200:
+                        break
+                except requests.exceptions.ConnectionError:
+                    print('等待客户端加载完毕')
+
+
+        elif wait_lcu_thread > -1:
+            self.logger.warning(f'未找到Lcu进程,将在{wait_lcu_thread}秒后重试...')
+            Sleep(wait_lcu_thread * 1000)
+            self.__init__()
+        else:
+            self.logger.warning('未找到Lcu进程,已退出')
 
     def get_lcu_args(self):
-
+        cmd_line = []
+        for prs in process_iter():
+            if prs.name() in ['LeagueClient', 'LeagueClientUx.exe']:
+                cmd_line = prs.cmdline()
+                break
         return {
             line[2:].split('=', 1)[0]: line[2:].split('=', 1)[1]
-            for line in self.find_lcu_cmdline()
+            for line in cmd_line
             if '=' in line
         }
 
-    def getdata(self, path, method='get', headers=None, data=None):
+    def getdata(self, path, method='get', data=None) -> requests.Response:
         """
         :param path:路径
         :param method:方式,默认get
@@ -44,21 +70,56 @@ class LcuRequest:
         :param data:内容body
         :return:数据
         """
-        if headers is None:
-            headers = {}
-        headers.update(self.headers)
         return request(method, self.url + path, headers=self.headers, data=json.dumps(data), verify=False)
 
-    def find_lcu_cmdline(self):
-        for prs in process_iter():
-            if prs.name() in ['LeagueClient', 'LeagueClientUx.exe']:
-                self.is_process = True
-                return prs.cmdline()
-        self.is_process = False
-        return []
+    async def connect_websocket(self):
+        self.ws_session = aiohttp.ClientSession(auth=aiohttp.BasicAuth('riot', self.token), headers={
+            "User-Agent": "LeagueOfLegendsClient",
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        })
+        self.ws_client = await self.ws_session.ws_connect(f'wss://127.0.0.1:{self.port}', ssl=False)
+        '''
+     
+        '''
+
+    async def async_getdata(self, path, method='GET', data=None):
+        async with await self.ws_session.request(method, f'{self.url}{path}', data=json.dumps(data), ssl=False) as resp:
+            data = json.loads(await resp.text())
+            return data
+
+    async def subscribe(self, event: str, call_back):
+        if event in self.event_call_back:
+            pass
+        else:
+            await self.ws_client.send_json([5, event])
+            self.event_call_back[event] = call_back
+
+    async def unsubscribe(self, event: str):
+        if event in self.event_call_back:
+            del self.event_call_back[event]
+        else:
+            pass
+
+    async def run(self):
+        loop = asyncio.get_running_loop()
+        async for msg in self.ws_client:
+            if msg.type == aiohttp.WSMsgType.TEXT:
+                # print(f'Received message: {msg.data}')
+                loop.create_task(self.event_call_back['OnJsonApiEvent'](msg.data))
+            elif msg.type == aiohttp.WSMsgType.ERROR:
+                print(f'WebSocket connection closed with exception {self.ws_client.exception()}')
+        await self.ws_session.close()
+
+    async def close_websocket(self):
+        await self.ws_client.close()
+        await self.ws_session.close()
 
     def reset(self):
         self.__init__()
+
+
+
 
 
 class LcuThread(QThread):
@@ -100,11 +161,11 @@ class LcuThread(QThread):
                     if state == "ChampSelect":
                         self.set_text.emit("选择英雄中", "#FF1493")
                         my_cellId, ppuid_floor = self.get_team_information()
-                        self.lcu.getdata(f'/lol-champ-select/v1/session/actions/{my_cellId}', 'PATCH', {}, {
+                        self.lcu.getdata(f'/lol-champ-select/v1/session/actions/{my_cellId}', 'PATCH', {
                             "championId": self.hero_choose,
                             "completed": False
                         })
-
+                        print(my_cellId, 'mycellid')
                         chat_id = ''
                         for chat_info in self.lcu.getdata("/lol-chat/v1/conversations").json():
                             if chat_info["type"] == 'championSelect':
