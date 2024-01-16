@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import random
@@ -13,8 +14,8 @@ import subprocess
 
 from GameInfo import Info
 
-from Lcu import LcuRequest, LcuThread
-
+from Lcu import lcu
+from LoLMainQThread import LcuThread
 from Summoner import SummonerUIRect
 
 from UI import Toolbox, MainWindow
@@ -50,6 +51,7 @@ def set_hero_list():
     ToolboxUI.ban_hero_2.setCompleter(completer)
     ToolboxUI.ban_hero_3.setCompleter(completer)
 
+
 def summoner_init(data: dict):
     """
     :param data: {ppuid:floor}
@@ -58,24 +60,24 @@ def summoner_init(data: dict):
     global summoner
     summoner = {}
     for ppuid, floor in data.items():
-        summoner[ppuid] = {"UI": summoner_rect.bind_ui(floor)}
-    summoner_rect.start()
+        summoner[ppuid] = {"UI_ui": summoner_rect.bind_ui(floor)}
 
 
 def set_summoner_info(ppuid: str, data: dict):
+
     summoner[ppuid].update(data)
     wins = data["wins"]
     lost = data["lost"]
-    summoner[ppuid]["UI"].recently.setText(f'近{wins + lost}场:')
-    summoner[ppuid]["UI"].recently_worl.setText(f'{wins}胜{lost}负{wins / (wins + lost) * 100:.0f}%')
-    summoner[ppuid]["UI"].recently_state.setText(f'{data["state"]}')
-    summoner[ppuid]["UI"].rank.setText(f'{data["tier"]}')
-    summoner[ppuid]["UI"].auto_size()
-    summoner[ppuid]["UI"].show()
+    summoner[ppuid]["UI_ui"].recently.setText(f'近{wins + lost}场:')
+    summoner[ppuid]["UI_ui"].recently_worl.setText(f'{wins}胜{lost}负{wins / (wins + lost) * 100:.0f}%')
+    summoner[ppuid]["UI_ui"].recently_state.setText(f'{data["state"]}')
+    summoner[ppuid]["UI_ui"].rank.setText(f'{data["tier"]}')
+    summoner[ppuid]["UI_ui"].auto_size()
+    summoner[ppuid]["UI_ui"].show()
 
 
 def set_summoner_hero(ppuid, hero_id: int):
-    if 'hero_collections' in summoner[ppuid]:
+    if ppuid in summoner and 'hero_collections' in summoner[ppuid]:
         hero_no = summoner[ppuid]['hero_collections'].get(hero_id, {'championPoints_no': '无'})[
             'championPoints_no']
         hero_proficiency = summoner[ppuid]['hero_collections'].get(hero_id, {'championPoints': '0'})[
@@ -87,14 +89,14 @@ def set_summoner_hero(ppuid, hero_id: int):
 
         hero_worl = f'{wins}胜{lost}负{wins / (wins + lost) * 100:.0f}%' if hero_worl else '无记录'
 
-        summoner[ppuid]["UI"].hero_no.setText(f"{hero_no}")
-        summoner[ppuid]["UI"].hero_proficiency.setText(f"{hero_proficiency}")
-        summoner[ppuid]["UI"].hero_worl.setText(f"{hero_worl}")
-        summoner[ppuid]["UI"].auto_size()
+        summoner[ppuid]["UI_ui"].hero_no.setText(f"{hero_no}")
+        summoner[ppuid]["UI_ui"].hero_proficiency.setText(f"{hero_proficiency}")
+        summoner[ppuid]["UI_ui"].hero_worl.setText(f"{hero_worl}")
+        summoner[ppuid]["UI_ui"].auto_size()
 
 
 def set_summoner_hide():
-    summoner_rect.init()
+    summoner_rect.close()
 
 
 def ui_init():
@@ -168,7 +170,7 @@ def hide_widows(widows=None):
 
 
 def set_accept(flag):
-    qthread.accept_flag = flag
+    qthread.control_auto_accept = flag
 
 
 def set_summoner_show(flag: bool):
@@ -195,7 +197,7 @@ def set_grab(flag):
 
 
 def set_grab_hero():
-    qthread.hero_choose = ToolboxUI.grab_hero.currentData()
+    # qthread.hero_choose = ToolboxUI.grab_hero.currentData()
     print(ToolboxUI.grab_hero.currentData())
 
 
@@ -227,7 +229,7 @@ def start():
 
     ############################################################
 
-    qthread.set_text.connect(set_state)
+    qthread.set_sata.connect(set_state)
     qthread.load_user_data.connect(load_data)  # 载入
     qthread.window_enable.connect(lambda b: MainUI.setEnabled(b))
     ##########################################################
@@ -238,21 +240,27 @@ def start():
     ###############################################################
     qthread.start()
     MainUI.show()
+    from win32api import Sleep
+    Sleep(7)
+
+
+async def ft(data):
+    await asyncio.sleep(3)
+    print(data)
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-
-    hero = {}  # 存储英雄信息
-    user = {}  # 存储用户信息
-    summoner = {}  # 存储队友信息
-
-    lcu = LcuRequest()
-    qthread = LcuThread(lcu)
+    local_setting = {}  # 软件配置
+    hero = {}  # 英雄信息
+    user = {}  # 用户信息
+    summoner = {}  # 队友信息
+    qthread = LcuThread()
     summoner_rect = SummonerUIRect()
 
     MainUI = MainWindow()
     ToolboxUI = Toolbox(MainUI)
+    MainUI.show()
 
     start()
     app.exec_()  # 开始

@@ -1,7 +1,6 @@
-from Lcu import LcuRequest
-#Qt.WindowTransparentForInput
-lcu = LcuRequest('F:\\英雄联盟-\\LeagueClient')
+from 弃用.GetSE import FindLolQP
 
-res = lcu.getdata(f'/lol-chat/v1/conversations').json()
+find = FindLolQP()
 
-print(res)
+info = find.get_info([''], '暗影岛')
+print(str(info).replace("'", '').replace('{', '').replace('}', '}'))

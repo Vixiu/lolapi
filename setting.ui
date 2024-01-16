@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>766</width>
-    <height>731</height>
+    <width>954</width>
+    <height>1465</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,10 +19,10 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>100</x>
      <y>0</y>
      <width>601</width>
-     <height>731</height>
+     <height>1471</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -268,8 +268,8 @@ QComboBox QAbstractItemView::item:selected {
      <rect>
       <x>10</x>
       <y>60</y>
-      <width>571</width>
-      <height>651</height>
+      <width>561</width>
+      <height>1331</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -296,7 +296,7 @@ QComboBox QAbstractItemView::item:selected {
        <x>0</x>
        <y>0</y>
        <width>561</width>
-       <height>950</height>
+       <height>1331</height>
       </rect>
      </property>
      <property name="minimumSize">
@@ -311,7 +311,7 @@ QComboBox QAbstractItemView::item:selected {
         <x>0</x>
         <y>0</y>
         <width>561</width>
-        <height>950</height>
+        <height>1001</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -330,8 +330,14 @@ QComboBox QAbstractItemView::item:selected {
        <item>
         <widget class="QWidget" name="widget_accept" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_21">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QLabel" name="label_8">
               <property name="font">
@@ -342,7 +348,7 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>自动接受:</string>
+               <string>自动接受</string>
               </property>
              </widget>
             </item>
@@ -368,8 +374,8 @@ QComboBox QAbstractItemView::item:selected {
               </property>
               <property name="styleSheet">
                <string notr="true">      QCheckBox::indicator {
-                width: 71px;
-                height: 30px;
+                width: 50px;
+                height: 25px;
                 border: 0px;  
             }
             QCheckBox::indicator:checked {
@@ -377,7 +383,7 @@ QComboBox QAbstractItemView::item:selected {
                 background-image:url(:/新前缀/C:/Users/lnori/Desktop/o.png);
             }
             QCheckBox::indicator:unchecked {
-                background-image: url(:/新前缀/C:/Users/lnori/Desktop/c.png); 
+                background-image: url(:/新前缀/C:/Users/lnori/Desktop/p.png); 
              
             }
 
@@ -400,62 +406,6 @@ QComboBox QAbstractItemView::item:selected {
             </item>
            </layout>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <property name="spacing">
-             <number>12</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QRadioButton" name="radio_accept_on">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>开启</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <property name="autoRepeat">
-               <bool>false</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radio_accept_off">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>关闭</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
          </layout>
         </widget>
        </item>
@@ -474,7 +424,7 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>队友信息:</string>
+               <string>队友信息</string>
               </property>
              </widget>
             </item>
@@ -482,14 +432,14 @@ QComboBox QAbstractItemView::item:selected {
              <widget class="QLabel" name="label_24">
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="styleSheet">
                <string notr="true">color:rgb(153, 153, 153)</string>
               </property>
               <property name="text">
-               <string>在房间内展示队友信息</string>
+               <string>悬浮窗展示队友信息</string>
               </property>
              </widget>
             </item>
@@ -506,49 +456,44 @@ QComboBox QAbstractItemView::item:selected {
               </property>
              </spacer>
             </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_19">
             <item>
-             <widget class="QRadioButton" name="radio_team_on">
+             <widget class="QCheckBox" name="checkBox_8">
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>15</pointsize>
                </font>
               </property>
+              <property name="styleSheet">
+               <string notr="true">      QCheckBox::indicator {
+                width: 50px;
+                height: 25px;
+                border: 0px;  
+            }
+            QCheckBox::indicator:checked {
+            
+                background-image:url(:/新前缀/C:/Users/lnori/Desktop/o.png);
+            }
+            QCheckBox::indicator:unchecked {
+                background-image: url(:/新前缀/C:/Users/lnori/Desktop/p.png); 
+             
+            }
+
+        
+           </string>
+              </property>
               <property name="text">
-               <string>开启</string>
+               <string/>
               </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radio_team_off">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>关闭</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_19">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
+              <property name="iconSize">
                <size>
-                <width>40</width>
-                <height>20</height>
+                <width>64</width>
+                <height>32</height>
                </size>
               </property>
-             </spacer>
+              <property name="tristate">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -635,7 +580,7 @@ QComboBox QAbstractItemView::item:selected {
        <item>
         <widget class="QWidget" name="widget_grab" native="true">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
@@ -650,7 +595,22 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>秒选英雄:</string>
+               <string>秒选英雄</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_33">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(153, 153, 153)</string>
+              </property>
+              <property name="text">
+               <string>仅限匹配(非征召对局)</string>
               </property>
              </widget>
             </item>
@@ -667,37 +627,49 @@ QComboBox QAbstractItemView::item:selected {
               </property>
              </spacer>
             </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_9">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">      QCheckBox::indicator {
+                width: 50px;
+                height: 25px;
+                border: 0px;  
+            }
+            QCheckBox::indicator:checked {
+            
+                background-image:url(:/新前缀/C:/Users/lnori/Desktop/o.png);
+            }
+            QCheckBox::indicator:unchecked {
+                background-image: url(:/新前缀/C:/Users/lnori/Desktop/p.png); 
+             
+            }
+
+        
+           </string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>64</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="tristate">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_6">
-            <item>
-             <widget class="QRadioButton" name="radio_grab_on">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>开启</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radio_grab_off">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>关闭</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QComboBox" name="grab_hero">
               <property name="font">
@@ -710,6 +682,21 @@ QComboBox QAbstractItemView::item:selected {
               </property>
               <property name="minimumContentsLength">
                <number>12</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_34">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(153, 153, 153)</string>
+              </property>
+              <property name="text">
+               <string>提示</string>
               </property>
              </widget>
             </item>
@@ -767,14 +754,22 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>自动禁用:</string>
+               <string>自动禁用</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_17">
+             <widget class="QLabel" name="label_32">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(153, 153, 153)</string>
+              </property>
               <property name="text">
-               <string/>
+               <string>不会禁用队友预选英雄</string>
               </property>
              </widget>
             </item>
@@ -791,51 +786,26 @@ QComboBox QAbstractItemView::item:selected {
               </property>
              </spacer>
             </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_4">
+              <property name="text">
+               <string>CheckBox</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_14">
-            <item>
-             <widget class="QRadioButton" name="radio_ban_on">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>开启</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radio_ban_off">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>关闭</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_12">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="QCheckBox" name="checkBox_6">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>最后禁用</string>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_12">
@@ -847,40 +817,7 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>等待</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="ban_second">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>14</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>0</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_20">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>秒后在禁用</string>
+               <string>禁用英雄:</string>
               </property>
              </widget>
             </item>
@@ -901,18 +838,6 @@ QComboBox QAbstractItemView::item:selected {
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_13">
-            <item>
-             <widget class="QLabel" name="label_18">
-              <property name="font">
-               <font>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>禁用:</string>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QComboBox" name="ban_hero_1">
               <property name="font">
@@ -936,6 +861,24 @@ QComboBox QAbstractItemView::item:selected {
             </item>
             <item>
              <widget class="QComboBox" name="ban_hero_3">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="ban_hero_5">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="ban_hero_6">
               <property name="font">
                <font>
                 <pointsize>12</pointsize>
@@ -979,7 +922,7 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>生涯背景:</string>
+               <string>生涯背景</string>
               </property>
              </widget>
             </item>
@@ -987,7 +930,7 @@ QComboBox QAbstractItemView::item:selected {
              <widget class="QLabel" name="label_5">
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="styleSheet">
@@ -1010,6 +953,18 @@ QComboBox QAbstractItemView::item:selected {
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="skin_button">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>应用</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1058,18 +1013,6 @@ QComboBox QAbstractItemView::item:selected {
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="skin_button">
-              <property name="font">
-               <font>
-                <pointsize>15</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>应用</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -1105,7 +1048,7 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>创建房间:</string>
+               <string>创建房间</string>
               </property>
              </widget>
             </item>
@@ -1113,7 +1056,7 @@ QComboBox QAbstractItemView::item:selected {
              <widget class="QLabel" name="label_11">
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="styleSheet">
@@ -1137,6 +1080,13 @@ QComboBox QAbstractItemView::item:selected {
               </property>
              </spacer>
             </item>
+            <item>
+             <widget class="QPushButton" name="room_button">
+              <property name="text">
+               <string>创建</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
@@ -1155,13 +1105,6 @@ QComboBox QAbstractItemView::item:selected {
             </item>
             <item>
              <widget class="QComboBox" name="room_id"/>
-            </item>
-            <item>
-             <widget class="QPushButton" name="room_button">
-              <property name="text">
-               <string>创建</string>
-              </property>
-             </widget>
             </item>
             <item>
              <spacer name="horizontalSpacer_5">
@@ -1199,7 +1142,7 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>在线状态:</string>
+               <string>在线状态</string>
               </property>
              </widget>
             </item>
@@ -1207,7 +1150,7 @@ QComboBox QAbstractItemView::item:selected {
              <widget class="QLabel" name="label_14">
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="styleSheet">
@@ -1322,7 +1265,7 @@ QComboBox QAbstractItemView::item:selected {
              <widget class="QLabel" name="label_23">
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="styleSheet">
@@ -1345,6 +1288,13 @@ QComboBox QAbstractItemView::item:selected {
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_7">
+              <property name="text">
+               <string>CheckBox</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1448,7 +1398,7 @@ QComboBox QAbstractItemView::item:selected {
                </font>
               </property>
               <property name="text">
-               <string>自动启动游戏:</string>
+               <string>游戏启动</string>
               </property>
              </widget>
             </item>
@@ -1456,7 +1406,7 @@ QComboBox QAbstractItemView::item:selected {
              <widget class="QLabel" name="label_31">
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="styleSheet">
@@ -1479,6 +1429,13 @@ QComboBox QAbstractItemView::item:selected {
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_5">
+              <property name="text">
+               <string>CheckBox</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1557,6 +1514,37 @@ QComboBox QAbstractItemView::item:selected {
      </widget>
     </widget>
    </widget>
+  </widget>
+  <widget class="QCheckBox" name="checkBox">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>160</y>
+     <width>56</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">      QCheckBox::indicator {
+                width: 50px;
+                height: 20px;
+                border: 0px;  
+            }
+            QCheckBox::indicator:checked {
+            
+                background-image:url(:/新前缀/C:/Users/lnori/Desktop/open.png);
+            }
+            QCheckBox::indicator:unchecked {
+                background-image: url(:/新前缀/C:/Users/lnori/Desktop/colse.png); 
+             
+            }
+
+        
+           </string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
   </widget>
  </widget>
  <resources>

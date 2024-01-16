@@ -1,18 +1,16 @@
+import random
 import sys
 
+import win32gui
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication
+from Summoner import SummonerUIRect
 
-
-import qdarktheme
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
-
+s = SummonerUIRect()
 app = QApplication(sys.argv)
-# Apply the complete dark theme to your Qt App.
-qdarktheme.setup_theme(theme= "light")
 
-main_win = QMainWindow()
-push_button = QPushButton("PyQtDarkTheme!!")
-main_win.setCentralWidget(push_button)
+w = s.bind_ui(2)
+w.show()
 
-main_win.show()
 
-app.exec()
+app.exec_()  # 开始
